@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SelfPoolTracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&family=Rubik:wght@800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@800&display=swap" rel="stylesheet">
 <style>
 /* ── Self Design Tokens ──────────────────────────────────── */
 :root {
@@ -17,7 +17,7 @@
   --self-text:#eef4f7; --self-text-2:#8a9caa; --self-text-3:#556673;
   --self-font-sans:"Exo 2",system-ui,sans-serif;
   --self-font-mono:"IBM Plex Mono",monospace;
-  --self-font-wm:"Rubik",var(--self-font-sans);
+  --self-font-wm:"Orbitron",var(--self-font-sans);
   --self-r:10px; --self-r-sm:6px;
   --self-glow:0 0 60px -12px rgba(51,167,140,.45);
   color-scheme:dark;
@@ -70,11 +70,27 @@ nav button:hover:not(.active){color:var(--self-text-2)}
 @media(max-width:560px){
   header{padding:10px 14px;gap:8px;flex-wrap:wrap}
   .logo{gap:8px;min-width:0}
-  .logo-wm{font-size:1.05rem}
+  .logo-wm{font-size:.95rem;letter-spacing:0}
   .header-r{gap:8px}
   .vol-pill{padding:3px 10px;font-size:.72rem}
   nav{padding:0 10px}
   nav button{padding:10px 12px;font-size:.78rem}
+  /* Idealwerte: lange Hinweis-Spalte ausblenden, Rest passt aufs Display */
+  .rtable{font-size:.74rem}
+  .rtable th:last-child,.rtable td:last-child{display:none}
+  /* Messverlauf: Tabelle -> Karten (kein seitliches Abschneiden) */
+  .tbl-wrap{overflow-x:visible}
+  table.dt{min-width:0;display:block}
+  table.dt thead{display:none}
+  table.dt tbody{display:block}
+  table.dt tr{display:block;background:var(--self-bg-3);border:1px solid var(--self-line-strong);border-radius:var(--self-r);margin-bottom:10px;padding:6px 12px}
+  table.dt tr:hover td{background:transparent}
+  table.dt td{display:flex;justify-content:space-between;align-items:center;gap:14px;text-align:right;border:none;border-bottom:1px solid var(--self-line);padding:7px 0;white-space:normal}
+  table.dt tr td:last-child{border-bottom:none;justify-content:flex-end}
+  table.dt td::before{content:attr(data-label);color:var(--self-text-3);font-family:var(--self-font-mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;text-align:left;flex:0 0 auto}
+  table.dt td.act{max-width:none;text-align:right}
+  table.dt td.no-data{display:block;text-align:center;border:none}
+  table.dt td.no-data::before{content:none}
 }
 
 /* ── Fields ─────────────────────────────────────────────── */
@@ -365,8 +381,11 @@ footer a{color:var(--self-teal);text-decoration:none}
 <div id="toast"></div>
 
 <footer>
-  <a href="https://github.com/s3lfcod3r/selfpooltracker" target="_blank">SelfPoolTracker</a>
-  &nbsp;·&nbsp; <span data-t="footer">Keine Internetverbindung nötig · Chrome &amp; Edge</span>
+  <a href="https://github.com/s3lfcod3r/selfpooltracker" target="_blank" rel="noopener">GitHub</a>
+  &nbsp;·&nbsp;
+  <a href="https://selfcoder.de" target="_blank" rel="noopener">selfcoder.de</a>
+  &nbsp;·&nbsp;
+  <span data-t="footer">Keine Internetverbindung nötig</span>
 </footer>
 
 <script>
@@ -431,7 +450,7 @@ de:{
   dlg_open:'Hast du bereits eine pool_daten.json?\n\nOK = Bestehende öffnen\nAbbrechen = Neue erstellen',
   dlg_del:'Eintrag löschen?',
   err_date:'Bitte Datum eingeben.', err_val:'Mindestens einen Messwert eintragen.',
-  footer:'Keine Internetverbindung nötig · Chrome & Edge',
+  footer:'Keine Internetverbindung nötig',
 },
 en:{
   nav_pool:'⚙ Pool Info', nav_meas:'📋 Measurements', nav_dose:'💊 Dosing',
@@ -490,7 +509,7 @@ en:{
   dlg_open:'Do you have an existing pool_data.json?\n\nOK = Open existing\nCancel = Create new',
   dlg_del:'Delete this entry?',
   err_date:'Please enter a date.', err_val:'Enter at least one measurement value.',
-  footer:'No internet needed · Chrome & Edge',
+  footer:'No internet needed',
 }
 };
 
@@ -672,17 +691,17 @@ function renderTable() {
     const vol=m.vol||poolVol;
     const rec=(haP||haC||haM)?buildRec(ps||'ok',cs||'ok',ms||'ok',m.ph,m.cl,m.mv,vol):'–';
     return `<tr>
-      <td class="dc">${ds}${ts}</td>
-      <td>${!isNaN(m.temp)&&m.temp!==''?m.temp+' °C':'<span class="dash">–</span>'}</td>
-      <td>${haP?m.ph.toFixed(2):'<span class="dash">–</span>'}</td>
-      <td>${haC?m.cl.toFixed(2)+' mg/l':'<span class="dash">–</span>'}</td>
-      <td>${haM?Math.round(m.mv)+' mV':'<span class="dash">–</span>'}</td>
-      <td>${ps?badge(ps):'<span class="dash">–</span>'}</td>
-      <td>${cs?badge(cs):'<span class="dash">–</span>'}</td>
-      <td>${ms?badge(ms):'<span class="dash">–</span>'}</td>
-      <td class="act">${rec}</td>
-      <td>${ok?`<span class="${oc}">${t(ok)}</span>`:'<span class="dash">–</span>'}</td>
-      <td><button class="btn btn-del" onclick="delEntry(${i})">✕</button></td>
+      <td class="dc" data-label="${t('col_date')}">${ds}${ts}</td>
+      <td data-label="${t('col_temp')}">${!isNaN(m.temp)&&m.temp!==''?m.temp+' °C':'<span class="dash">–</span>'}</td>
+      <td data-label="pH">${haP?m.ph.toFixed(2):'<span class="dash">–</span>'}</td>
+      <td data-label="${t('col_cl')}">${haC?m.cl.toFixed(2)+' mg/l':'<span class="dash">–</span>'}</td>
+      <td data-label="Redox">${haM?Math.round(m.mv)+' mV':'<span class="dash">–</span>'}</td>
+      <td data-label="${t('col_ph_s')}">${ps?badge(ps):'<span class="dash">–</span>'}</td>
+      <td data-label="${t('col_cl_s')}">${cs?badge(cs):'<span class="dash">–</span>'}</td>
+      <td data-label="${t('col_mv_s')}">${ms?badge(ms):'<span class="dash">–</span>'}</td>
+      <td class="act" data-label="${t('col_action')}">${rec}</td>
+      <td data-label="${t('col_total')}">${ok?`<span class="${oc}">${t(ok)}</span>`:'<span class="dash">–</span>'}</td>
+      <td data-label="">${`<button class="btn btn-del" onclick="delEntry(${i})">✕</button>`}</td>
     </tr>`;
   }).join('');
 }
