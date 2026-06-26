@@ -709,8 +709,14 @@ function exportCSV() {
       !isNaN(m.mv)?{ok:'OK',warn:'Check',crit:'Critical'}[mvS(m.mv)]:'',
       m.vol??''].join(';');
   }).join('\n');
+  const csv='﻿'+h+rows;
+  // Android WebView: hand the CSV to the native bridge (no File System Access API there)
+  if(window.SelfPoolAndroid&&typeof window.SelfPoolAndroid.saveCsv==='function'){
+    try{ window.SelfPoolAndroid.saveCsv('pool_measurements.csv', csv); return; }
+    catch(e){ console.error(e); }
+  }
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob(['﻿'+h+rows],{type:'text/csv;charset=utf-8'}));
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
   a.download='pool_measurements.csv'; a.click();
 }
 
@@ -723,6 +729,9 @@ async function idbSet(k,v){const db=await openDB();return new Promise((r,e)=>{co
 
 function updateFB() {
   const bar=document.getElementById('file-bar');
+  // No File System Access API (Android WebView / Firefox): hide the file bar
+  // entirely — data persists automatically in localStorage on this device.
+  if(!window.showOpenFilePicker){ bar.style.display='none'; return; }
   const icon=document.getElementById('fb-icon');
   const txt=document.getElementById('fb-text');
   const sav=document.getElementById('fb-save');
