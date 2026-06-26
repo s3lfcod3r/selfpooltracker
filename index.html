@@ -78,19 +78,6 @@ nav button:hover:not(.active){color:var(--self-text-2)}
   /* Idealwerte: lange Hinweis-Spalte ausblenden, Rest passt aufs Display */
   .rtable{font-size:.74rem}
   .rtable th:last-child,.rtable td:last-child{display:none}
-  /* Messverlauf: Tabelle -> Karten (kein seitliches Abschneiden) */
-  .tbl-wrap{overflow-x:visible}
-  table.dt{min-width:0;display:block}
-  table.dt thead{display:none}
-  table.dt tbody{display:block}
-  table.dt tr{display:block;background:var(--self-bg-3);border:1px solid var(--self-line-strong);border-radius:var(--self-r);margin-bottom:10px;padding:6px 12px}
-  table.dt tr:hover td{background:transparent}
-  table.dt td{display:flex;justify-content:space-between;align-items:center;gap:14px;text-align:right;border:none;border-bottom:1px solid var(--self-line);padding:7px 0;white-space:normal}
-  table.dt tr td:last-child{border-bottom:none;justify-content:flex-end}
-  table.dt td::before{content:attr(data-label);color:var(--self-text-3);font-family:var(--self-font-mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;text-align:left;flex:0 0 auto}
-  table.dt td.act{max-width:none;text-align:right}
-  table.dt td.no-data{display:block;text-align:center;border:none}
-  table.dt td.no-data::before{content:none}
 }
 
 /* ── Fields ─────────────────────────────────────────────── */
@@ -163,6 +150,25 @@ table.dt td.dc{color:var(--self-text);font-weight:600}
 /* ── Footer ──────────────────────────────────────────────── */
 footer{text-align:center;padding:20px;color:var(--self-text-3);font-size:.7rem;font-family:var(--self-font-mono);border-top:1px solid var(--self-line);margin-top:10px}
 footer a{color:var(--self-teal);text-decoration:none}
+
+/* ── Mobile: Messverlauf-Tabelle -> Karten (MUSS nach table.dt-Basisregel
+   stehen, sonst gewinnt deren min-width:860px und die Karte wird zu breit) ── */
+@media(max-width:560px){
+  .tbl-wrap{overflow-x:visible}
+  table.dt{min-width:0;display:block;width:100%}
+  table.dt thead{display:none}
+  table.dt tbody{display:block}
+  table.dt tr{display:block;background:var(--self-bg-3);border:1px solid var(--self-line-strong);border-radius:var(--self-r);margin-bottom:10px;padding:4px 12px}
+  table.dt tr:hover td{background:transparent}
+  table.dt td{display:flex;justify-content:space-between;align-items:center;gap:14px;text-align:right;min-width:0;border:none;border-bottom:1px solid var(--self-line);padding:7px 0;white-space:normal}
+  table.dt tr td:last-child{border-bottom:none;justify-content:flex-end}
+  table.dt td::before{content:attr(data-label);color:var(--self-text-3);font-family:var(--self-font-mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;text-align:left;flex:0 0 auto}
+  /* lange Werte (Empfehlung) duerfen schrumpfen/umbrechen statt rauszuragen */
+  table.dt td>*{min-width:0;overflow-wrap:anywhere}
+  table.dt td.act{flex-direction:column;align-items:stretch;gap:3px;max-width:none;text-align:right}
+  table.dt td.no-data{display:block;text-align:center;border:none}
+  table.dt td.no-data::before{content:none}
+}
 </style>
 </head>
 <body>
