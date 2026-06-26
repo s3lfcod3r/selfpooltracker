@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SelfPoolTracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&family=Rubik:wght@800&display=swap" rel="stylesheet">
+<style>
+/* ── Self Design Tokens ──────────────────────────────────── */
+:root {
+  --self-bg-0:#080c11; --self-bg-1:#0d1117; --self-bg-2:#161b22; --self-bg-3:#1c2333;
+  --self-line:rgba(157,189,208,.10); --self-line-strong:rgba(157,189,208,.22);
+  --self-teal:#33a78c; --self-teal-bright:#43d3ad; --self-teal-deep:#1f7763; --self-cyan:#00e5c8;
+  --self-ice:#9dbdd0; --self-ice-bright:#bcd9e9; --self-blue:#1db8d4;
+  --self-green:#3fb950; --self-red:#f85149; --self-yellow:#d29922;
+  --self-text:#eef4f7; --self-text-2:#8a9caa; --self-text-3:#556673;
+  --self-font-sans:"Exo 2",system-ui,sans-serif;
+  --self-font-mono:"IBM Plex Mono",monospace;
+  --self-font-wm:"Rubik",var(--self-font-sans);
+  --self-r:10px; --self-r-sm:6px;
+  --self-glow:0 0 60px -12px rgba(51,167,140,.45);
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--self-font-sans);background:var(--self-bg-0);color:var(--self-text);min-height:100vh;font-size:14px}
+
+/* ── Header ─────────────────────────────────────────────── */
+header{background:var(--self-bg-1);border-bottom:1px solid var(--self-line-strong);padding:12px 24px;display:flex;align-items:center;gap:14px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo img{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(51,167,140,.6))}
+.logo-wm{font-family:var(--self-font-wm);font-weight:800;font-size:1.25rem;letter-spacing:-.02em;line-height:1}
+.logo-wm .s{color:var(--self-ice)} .logo-wm .n{color:var(--self-teal)}
+.header-r{margin-left:auto;display:flex;align-items:center;gap:10px}
+.vol-pill{background:var(--self-bg-3);border:1px solid var(--self-line-strong);border-radius:20px;padding:4px 14px;font-family:var(--self-font-mono);font-size:.8rem;color:var(--self-teal-bright)}
+.vol-pill small{color:var(--self-text-3);font-size:.68rem;display:block;line-height:1.2}
+.lang-toggle{display:flex;background:var(--self-bg-3);border:1px solid var(--self-line);border-radius:var(--self-r-sm);overflow:hidden}
+.lang-toggle button{background:none;border:none;padding:5px 10px;font-size:.75rem;font-weight:700;color:var(--self-text-3);cursor:pointer;font-family:var(--self-font-mono);transition:.15s}
+.lang-toggle button.active{background:var(--self-teal);color:#fff}
+
+/* ── Nav ────────────────────────────────────────────────── */
+nav{display:flex;background:var(--self-bg-1);border-bottom:1px solid var(--self-line);padding:0 20px;gap:2px}
+nav button{background:none;border:none;padding:10px 16px;font-size:.82rem;font-weight:600;cursor:pointer;color:var(--self-text-3);border-bottom:2px solid transparent;transition:.2s;font-family:var(--self-font-sans)}
+nav button.active{color:var(--self-teal);border-bottom-color:var(--self-teal)}
+nav button:hover:not(.active){color:var(--self-text-2)}
+
+/* ── File bar ───────────────────────────────────────────── */
+#file-bar{display:flex;align-items:center;gap:10px;background:var(--self-bg-2);border-bottom:1px solid var(--self-yellow);padding:7px 20px;font-size:.78rem;color:var(--self-yellow);flex-wrap:wrap}
+#file-bar.ok{border-bottom-color:var(--self-teal-deep);color:var(--self-teal-bright)}
+.fb-btn{border:1px solid currentColor;border-radius:var(--self-r-sm);padding:4px 12px;font-size:.74rem;font-weight:700;cursor:pointer;background:transparent;color:var(--self-teal);font-family:var(--self-font-sans);transition:.15s}
+.fb-btn:hover{background:var(--self-teal);color:#fff;border-color:var(--self-teal)}
+.fb-btn-save{color:var(--self-green)}
+.fb-btn-save:hover{background:var(--self-green);border-color:var(--self-green)}
+
+/* ── Content ────────────────────────────────────────────── */
+.content{padding:20px;max-width:1160px;margin:0 auto}
+.tab{display:none}.tab.active{display:block}
+
+/* ── Card ───────────────────────────────────────────────── */
+.card{background:var(--self-bg-2);border:1px solid var(--self-line);border-radius:var(--self-r);padding:20px;margin-bottom:16px}
+.ct{font-size:.68rem;font-family:var(--self-font-mono);letter-spacing:.14em;color:var(--self-text-3);text-transform:uppercase;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--self-line);display:flex;align-items:center;gap:8px}
+.ct .ac{color:var(--self-teal)}
+
+/* ── Grid ───────────────────────────────────────────────── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.gauto{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;align-items:end}
+@media(max-width:600px){.g2,.g3,.gauto{grid-template-columns:1fr}}
+
+/* ── Fields ─────────────────────────────────────────────── */
+.field label{display:block;font-size:.68rem;font-family:var(--self-font-mono);letter-spacing:.08em;color:var(--self-text-3);text-transform:uppercase;margin-bottom:5px}
+.field input,.field select{width:100%;background:var(--self-bg-3);border:1px solid var(--self-line-strong);border-radius:var(--self-r-sm);padding:8px 10px;color:var(--self-text);font-family:var(--self-font-mono);font-size:.88rem;outline:none;transition:.2s}
+.field input:focus,.field select:focus{border-color:var(--self-teal);box-shadow:0 0 0 2px rgba(51,167,140,.18)}
+.field select option{background:var(--self-bg-3)}
+.field.dim label{opacity:.3}.field.dim input{opacity:.3;cursor:not-allowed;background:var(--self-bg-2)}
+
+/* ── Shape hint ─────────────────────────────────────────── */
+.shape-hint{display:none;margin-top:10px;background:var(--self-bg-3);border:1px solid var(--self-teal-deep);border-radius:var(--self-r-sm);padding:8px 12px;font-size:.76rem;color:var(--self-teal-bright);font-family:var(--self-font-mono)}
+.shape-hint.on{display:block}
+
+/* ── Volume result ──────────────────────────────────────── */
+.vol-box{margin-top:14px;background:var(--self-bg-3);border:1px solid var(--self-teal-deep);border-radius:var(--self-r);padding:14px 20px;display:flex;align-items:center;gap:20px;box-shadow:var(--self-glow)}
+.vol-big{font-family:var(--self-font-mono);font-size:1.8rem;font-weight:700;color:var(--self-teal-bright)}
+.vol-small{font-family:var(--self-font-mono);font-size:.82rem;color:var(--self-text-2)}
+.vol-formula{font-family:var(--self-font-mono);font-size:.72rem;color:var(--self-text-3);margin-left:auto}
+
+/* ── Ref table ──────────────────────────────────────────── */
+.rtable{width:100%;border-collapse:collapse;font-size:.8rem}
+.rtable th{background:var(--self-bg-3);color:var(--self-text-3);font-family:var(--self-font-mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:8px 10px;text-align:left;border-bottom:1px solid var(--self-line-strong)}
+.rtable td{padding:8px 10px;border-bottom:1px solid var(--self-line);color:var(--self-text-2);font-family:var(--self-font-mono);font-size:.78rem}
+.rtable td:first-child{color:var(--self-text);font-weight:600}
+.rtable .ideal{color:var(--self-teal-bright)}
+
+/* ── Buttons ────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:var(--self-r-sm);padding:8px 16px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:var(--self-font-sans);transition:.15s}
+.btn-p{background:var(--self-teal);color:#fff}.btn-p:hover{background:var(--self-teal-bright)}
+.btn-del{background:transparent;border:1px solid var(--self-red);color:var(--self-red);padding:4px 9px;font-size:.72rem}
+.btn-del:hover{background:var(--self-red);color:#fff}
+.btn-csv{background:transparent;border:1px solid var(--self-line-strong);color:var(--self-text-3)}.btn-csv:hover{border-color:var(--self-teal);color:var(--self-teal)}
+
+/* ── Measurements table ─────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;margin-top:12px}
+table.dt{width:100%;border-collapse:collapse;min-width:860px}
+table.dt th{background:var(--self-bg-3);color:var(--self-text-3);font-family:var(--self-font-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:8px 10px;text-align:center;border-bottom:1px solid var(--self-line-strong);position:sticky;top:0;white-space:nowrap}
+table.dt td{padding:7px 10px;border-bottom:1px solid var(--self-line);text-align:center;vertical-align:middle;font-family:var(--self-font-mono);font-size:.78rem;color:var(--self-text-2)}
+table.dt tr:hover td{background:var(--self-bg-3)}
+table.dt td.dc{color:var(--self-text);font-weight:600}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:.68rem;font-weight:700;font-family:var(--self-font-mono)}
+.b-ok{background:rgba(63,185,80,.12);color:var(--self-green);border:1px solid rgba(63,185,80,.25)}
+.b-warn{background:rgba(210,153,34,.12);color:var(--self-yellow);border:1px solid rgba(210,153,34,.25)}
+.b-crit{background:rgba(248,81,73,.12);color:var(--self-red);border:1px solid rgba(248,81,73,.25)}
+.dash{color:var(--self-text-3)}
+.act{font-size:.72rem;text-align:left;max-width:210px}
+.a-ok{color:var(--self-green)} .a-warn{color:var(--self-yellow);font-weight:600} .a-crit{color:var(--self-red);font-weight:700}
+.ov-ok{color:var(--self-green);font-family:var(--self-font-mono);font-size:.72rem;font-weight:700}
+.ov-warn{color:var(--self-yellow);font-family:var(--self-font-mono);font-size:.72rem;font-weight:700}
+.ov-crit{color:var(--self-red);font-family:var(--self-font-mono);font-size:.72rem;font-weight:700}
+.no-data{text-align:center;padding:32px;color:var(--self-text-3);font-style:italic}
+
+/* ── Top bar ─────────────────────────────────────────────── */
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.legend{display:flex;gap:12px;font-size:.74rem;flex-wrap:wrap;color:var(--self-text-2)}
+.ld{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
+
+/* ── Dosing ─────────────────────────────────────────────── */
+.dose-block{border-left:2px solid var(--self-line-strong);padding-left:16px;margin-bottom:22px}
+.dose-block h3{font-size:.68rem;font-family:var(--self-font-mono);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px}
+.dose-res{background:var(--self-bg-3);border:1px solid var(--self-line-strong);border-radius:var(--self-r-sm);padding:10px 14px;margin-top:8px;font-family:var(--self-font-mono);font-size:.92rem;font-weight:700;color:var(--self-teal-bright)}
+.dose-hint{font-size:.72rem;color:var(--self-text-3);margin-top:5px}
+.info-box{background:var(--self-bg-3);border:1px solid var(--self-teal-deep);border-radius:var(--self-r-sm);padding:10px 14px;font-size:.8rem;color:var(--self-text-2);margin-bottom:18px}
+.info-box strong{color:var(--self-teal-bright);display:block;margin-bottom:2px;font-family:var(--self-font-mono)}
+
+/* ── Toast ───────────────────────────────────────────────── */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--self-bg-3);border:1px solid var(--self-teal);color:var(--self-teal-bright);padding:10px 18px;border-radius:var(--self-r);font-size:.8rem;font-weight:700;font-family:var(--self-font-mono);z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast.err{border-color:var(--self-red);color:var(--self-red)}
+
+/* ── Footer ──────────────────────────────────────────────── */
+footer{text-align:center;padding:20px;color:var(--self-text-3);font-size:.7rem;font-family:var(--self-font-mono);border-top:1px solid var(--self-line);margin-top:10px}
+footer a{color:var(--self-teal);text-decoration:none}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────────────── -->
+<header>
+  <div class="logo">
+    <img src="logo/shield.png" alt="" onerror="this.style.display='none'">
+    <div class="logo-wm"><span class="s">Self</span><span class="n">PoolTracker</span></div>
+  </div>
+  <div class="header-r">
+    <div class="vol-pill">
+      <small id="vol-label">Volumen</small>
+      <span id="hdr-vol">–</span>
+    </div>
+    <div class="lang-toggle">
+      <button id="btn-de" class="active" onclick="setLang('de')">DE</button>
+      <button id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+</header>
+
+<!-- ── NAV ─────────────────────────────────────────────────── -->
+<nav>
+  <button class="active" onclick="showTab('t-pool',this)" data-t="nav_pool">⚙ Poolinfo</button>
+  <button onclick="showTab('t-meas',this)" data-t="nav_meas">📋 Messwerte</button>
+  <button onclick="showTab('t-dose',this)" data-t="nav_dose">💊 Dosierung</button>
+</nav>
+
+<!-- ── FILE BAR ────────────────────────────────────────────── -->
+<div id="file-bar">
+  <span id="fb-icon">⚠</span>
+  <span id="fb-text" data-t="file_none">Keine Datendatei – Daten nur im Browser-Cache</span>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <button class="fb-btn" onclick="connectFile()" data-t="file_open">📂 Datei öffnen / neu erstellen</button>
+    <button class="fb-btn fb-btn-save" onclick="manualSave()" id="fb-save" style="display:none" data-t="file_save">💾 Speichern</button>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ══════════════════════ TAB: POOL INFO ══════════════════════ -->
+<div id="t-pool" class="tab active">
+
+  <div class="card">
+    <div class="ct"><span class="ac">⚙</span> <span data-t="pool_config">POOL-KONFIGURATION</span></div>
+    <div class="g3">
+
+      <div class="field">
+        <label data-t="lbl_shape">Poolform</label>
+        <select id="pool-form" onchange="onShape()">
+          <option value="oval"  data-t="shape_oval">Oval / Ellipse</option>
+          <option value="round" data-t="shape_round">Rund / Kreis</option>
+          <option value="rect"  data-t="shape_rect">Rechteckig</option>
+        </select>
+      </div>
+
+      <div class="field" id="fld-l">
+        <label id="lbl-l" data-t="lbl_length">Länge (cm)</label>
+        <input type="number" id="pool-l" value="260" oninput="onLChange()">
+      </div>
+
+      <div class="field" id="fld-b">
+        <label id="lbl-b" data-t="lbl_width">Breite (cm)</label>
+        <input type="number" id="pool-b" value="160" oninput="calcVol()">
+      </div>
+
+      <div class="field">
+        <label data-t="lbl_height">Höhe (cm)</label>
+        <input type="number" id="pool-h" value="65" oninput="calcVol()">
+      </div>
+
+      <div class="field">
+        <label data-t="lbl_fill">Füllstand (%)</label>
+        <input type="number" id="pool-fill" value="80" min="40" max="100" oninput="calcVol()">
+      </div>
+
+    </div>
+
+    <div id="shape-hint" class="shape-hint"></div>
+
+    <div class="vol-box">
+      <div>
+        <div class="vol-big" id="vol-liter">–</div>
+        <div class="vol-small" id="vol-m3">–</div>
+      </div>
+      <div class="vol-formula" id="vol-formula">–</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="ac">📊</span> <span data-t="ideal_title">IDEALWERTE – REFERENZ</span></div>
+    <table class="rtable">
+      <thead><tr>
+        <th data-t="ref_param">Parameter</th>
+        <th data-t="ref_min">Min</th>
+        <th data-t="ref_ideal">Ideal</th>
+        <th data-t="ref_max">Max</th>
+        <th data-t="ref_unit">Einheit</th>
+        <th data-t="ref_note">Hinweis</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>pH</td><td>7,2</td><td class="ideal">7,2 – 7,6</td><td>7,6</td><td>–</td><td data-t="ref_ph">Unter 7,2 → pH-Plus  |  Über 7,6 → pH-Minus</td></tr>
+        <tr><td data-t="ref_cl_lbl">Chlor (frei)</td><td>0,5</td><td class="ideal">0,5 – 1,5</td><td>1,5</td><td>mg/l</td><td data-t="ref_cl">Unter 0,5 → nachchloren</td></tr>
+        <tr><td>Redox / MV</td><td>650</td><td class="ideal">650 – 750</td><td>750</td><td>mV</td><td data-t="ref_mv">Guter Desinfektionswert</td></tr>
+        <tr><td data-t="ref_temp_lbl">Temperatur</td><td>15</td><td class="ideal">20 – 28</td><td>35</td><td>°C</td><td data-t="ref_temp">Nur Info, kein Handlungsbedarf</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ══════════════════════ TAB: MESSWERTE ══════════════════════ -->
+<div id="t-meas" class="tab">
+
+  <div class="card">
+    <div class="ct"><span class="ac">➕</span> <span data-t="meas_add">NEUER MESSWERT</span></div>
+    <div class="gauto">
+      <div class="field"><label data-t="lbl_date">Datum</label><input type="date" id="m-date"></div>
+      <div class="field"><label data-t="lbl_time">Uhrzeit</label><input type="time" id="m-time"></div>
+      <div class="field"><label data-t="lbl_temp">Temp (°C)</label><input type="number" id="m-temp" step="0.1" placeholder="22.5"></div>
+      <div class="field"><label>pH</label><input type="number" id="m-ph" step="0.01" placeholder="7.40"></div>
+      <div class="field"><label data-t="lbl_cl">Chlor (mg/l)</label><input type="number" id="m-cl" step="0.01" placeholder="1.00"></div>
+      <div class="field"><label>Redox (mV)</label><input type="number" id="m-mv" step="1" placeholder="695"></div>
+      <div class="field" style="align-self:end">
+        <button class="btn btn-p" onclick="addEntry()">+ <span data-t="btn_save">Speichern</span></button>
+      </div>
+    </div>
+    <div id="m-err" style="color:var(--self-red);font-size:.76rem;margin-top:8px;display:none"></div>
+  </div>
+
+  <div class="card">
+    <div class="top-bar">
+      <div class="ct" style="margin:0;border:none;padding:0"><span class="ac">📋</span> <span data-t="meas_log">MESSVERLAUF</span></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <div class="legend">
+          <span><span class="ld" style="background:var(--self-green)"></span><span data-t="st_ok">OK</span></span>
+          <span><span class="ld" style="background:var(--self-yellow)"></span><span data-t="st_check">Prüfen</span></span>
+          <span><span class="ld" style="background:var(--self-red)"></span><span data-t="st_crit">Kritisch</span></span>
+        </div>
+        <button class="btn btn-csv" onclick="exportCSV()">↓ CSV</button>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table class="dt">
+        <thead><tr>
+          <th data-t="col_date">Datum</th>
+          <th data-t="col_temp">Temp</th>
+          <th>pH</th>
+          <th data-t="col_cl">Chlor</th>
+          <th>Redox</th>
+          <th data-t="col_ph_s">pH</th>
+          <th data-t="col_cl_s">Chlor</th>
+          <th data-t="col_mv_s">Redox</th>
+          <th data-t="col_action">Empfehlung</th>
+          <th data-t="col_total">Gesamt</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="meas-body">
+          <tr><td colspan="11" class="no-data" data-t="meas_empty">Noch keine Einträge</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════ TAB: DOSIERUNG ══════════════════════ -->
+<div id="t-dose" class="tab">
+  <div class="card">
+    <div class="ct"><span class="ac">💊</span> <span data-t="dose_title">DOSIERUNGSRECHNER</span></div>
+    <div class="info-box">
+      <strong id="dose-vol">–</strong>
+      <span data-t="dose_vol_hint">Volumen aus Pool-Konfiguration</span>
+    </div>
+
+    <div class="dose-block" style="border-color:var(--self-red)">
+      <h3 style="color:var(--self-red)" data-t="d_phm_title">pH-MINUS (SENKER)</h3>
+      <div class="g2">
+        <div class="field"><label data-t="d_cur">Aktueller Wert</label><input type="number" id="d-ph-cur" step="0.01" value="7.65" oninput="calcDose()"></div>
+        <div class="field"><label data-t="d_tgt">Zielwert</label><input type="number" id="d-ph-tgt" step="0.01" value="7.4" oninput="calcDose()"></div>
+      </div>
+      <div class="dose-res" id="r-phm">–</div>
+      <div class="dose-hint" data-t="d_phm_hint">Abends, in kleinen Mengen, 30 Min Pumpe laufen lassen</div>
+    </div>
+
+    <div class="dose-block" style="border-color:var(--self-blue)">
+      <h3 style="color:var(--self-blue)" data-t="d_php_title">pH-PLUS (HEBER)</h3>
+      <div class="g2">
+        <div class="field"><label data-t="d_cur">Aktueller Wert</label><input type="number" id="d-php-cur" step="0.01" value="7.0" oninput="calcDose()"></div>
+        <div class="field"><label data-t="d_tgt">Zielwert</label><input type="number" id="d-php-tgt" step="0.01" value="7.4" oninput="calcDose()"></div>
+      </div>
+      <div class="dose-res" id="r-php">–</div>
+      <div class="dose-hint" data-t="d_php_hint">In kleinen Portionen, je 15 Min warten</div>
+    </div>
+
+    <div class="dose-block" style="border-color:var(--self-teal)">
+      <h3 style="color:var(--self-teal-bright)" data-t="d_cl_title">CHLOR – SCHNELLCHLOR-GRANULAT</h3>
+      <div class="g2">
+        <div class="field"><label data-t="d_cl_cur">Aktuell (mg/l)</label><input type="number" id="d-cl-cur" step="0.01" value="0.25" oninput="calcDose()"></div>
+        <div class="field"><label data-t="d_cl_tgt">Ziel (mg/l)</label><input type="number" id="d-cl-tgt" step="0.01" value="1.0" oninput="calcDose()"></div>
+      </div>
+      <div class="dose-res" id="r-cl">–</div>
+      <div class="dose-hint" data-t="d_cl_hint">Abends einstreuen, Pumpe mind. 2h laufen lassen</div>
+      <div style="margin-top:14px">
+        <div class="dose-hint" data-t="d_shock_lbl">⚡ Schockchlor (20 g/m³):</div>
+        <div class="dose-res" id="r-shock" style="color:var(--self-yellow)">–</div>
+        <div class="dose-hint" data-t="d_shock_hint">Bei Algen, starker Nutzung oder nach Regen</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<div id="toast"></div>
+
+<footer>
+  <a href="https://github.com/s3lfcod3r/selfpooltracker" target="_blank">SelfPoolTracker</a>
+  &nbsp;·&nbsp; <span data-t="footer">Keine Internetverbindung nötig · Chrome &amp; Edge</span>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   TRANSLATIONS
+═══════════════════════════════════════════════════════════ */
+const TR = {
+de:{
+  nav_pool:'⚙ Poolinfo', nav_meas:'📋 Messwerte', nav_dose:'💊 Dosierung',
+  vol_label:'Volumen',
+  file_none:'Keine Datendatei verknüpft – Daten nur im Browser-Cache',
+  file_ok:'Datei: ',
+  file_open:'📂 Datei öffnen / neu erstellen', file_save:'💾 Speichern',
+  pool_config:'POOL-KONFIGURATION',
+  lbl_shape:'Poolform', lbl_length:'Länge (cm)', lbl_width:'Breite (cm)',
+  lbl_height:'Höhe (cm)', lbl_fill:'Füllstand (%)',
+  shape_oval:'Oval / Ellipse', shape_round:'Rund / Kreis', shape_rect:'Rechteckig',
+  hint_oval:'Oval: Länge = längster Durchmesser  ·  Breite = kürzester Durchmesser',
+  hint_round:'Rund: Nur Durchmesser nötig – Breite wird automatisch gesetzt',
+  hint_rect:'',
+  ll_oval:'Längsdurchmesser (cm)', lb_oval:'Querdurchmesser (cm)',
+  ll_round:'Durchmesser (cm)',     lb_round:'Breite (cm)',
+  ll_rect:'Länge (cm)',            lb_rect:'Breite (cm)',
+  ideal_title:'IDEALWERTE – REFERENZ',
+  ref_param:'Parameter', ref_min:'Min', ref_ideal:'Ideal', ref_max:'Max', ref_unit:'Einheit', ref_note:'Hinweis',
+  ref_ph:'< 7,2 → pH-Plus  |  > 7,6 → pH-Minus',
+  ref_cl_lbl:'Chlor (frei)', ref_cl:'< 0,5 → nachchloren',
+  ref_mv:'Guter Desinfektionswert',
+  ref_temp_lbl:'Temperatur', ref_temp:'Nur Info, kein Handlungsbedarf',
+  meas_add:'NEUER MESSWERT',
+  lbl_date:'Datum', lbl_time:'Uhrzeit', lbl_temp:'Temp (°C)', lbl_cl:'Chlor (mg/l)',
+  btn_save:'Speichern',
+  meas_log:'MESSVERLAUF',
+  st_ok:'OK', st_check:'Prüfen', st_crit:'Kritisch',
+  col_date:'Datum', col_temp:'Temp', col_cl:'Chlor',
+  col_ph_s:'pH Status', col_cl_s:'Cl Status', col_mv_s:'MV Status',
+  col_action:'Empfehlung', col_total:'Gesamt',
+  meas_empty:'Noch keine Einträge. Messwert eintragen ↑',
+  dose_title:'DOSIERUNGSRECHNER',
+  dose_vol_hint:'Volumen aus Pool-Konfiguration',
+  d_phm_title:'pH-MINUS (SENKER)', d_php_title:'pH-PLUS (HEBER)',
+  d_cl_title:'CHLOR – SCHNELLCHLOR-GRANULAT',
+  d_cur:'Aktueller Wert', d_tgt:'Zielwert',
+  d_cl_cur:'Aktuell (mg/l)', d_cl_tgt:'Ziel (mg/l)',
+  d_phm_hint:'Abends, in kleinen Mengen, 30 Min Pumpe laufen lassen',
+  d_php_hint:'In kleinen Portionen, je 15 Min warten',
+  d_cl_hint:'Abends einstreuen, Pumpe mind. 2h laufen lassen',
+  d_shock_lbl:'⚡ Schockchlor (20 g/m³):',
+  d_shock_hint:'Bei Algen, starker Nutzung oder nach Regen',
+  a_ok:'✓ Kein Handlungsbedarf',
+  a_phm:'pH-Minus: {g} g zugeben', a_php:'pH-Plus: {g} g zugeben',
+  a_cl:'Schnellchlor: {g} g (Ziel 1,0 mg/l)',
+  a_cl_hi:'Chlor zu hoch – warten / verdünnen',
+  a_mv_lo:'Chlorgehalt prüfen & erhöhen', a_mv_hi:'Redox erhöht – Chlor & pH prüfen',
+  ov_ok:'✓ ALLES OK', ov_warn:'⚠ PRÜFEN', ov_crit:'✗ KRITISCH',
+  r_phm:'{g} g pH-Minus zugeben', r_phm_no:'pH nicht zu hoch',
+  r_php:'{g} g pH-Plus zugeben',  r_php_no:'pH nicht zu niedrig',
+  r_cl:'{g} g Schnellchlor zugeben', r_cl_no:'Chlorgehalt ausreichend',
+  r_shock:'Schockchlor: {g} g  (20 g × {m3} m³)',
+  toast_saved:'✓ Gespeichert', toast_load:'✓ Daten geladen',
+  toast_new:'✓ Neue Datei erstellt', toast_err:'⚠ Speichern fehlgeschlagen',
+  dlg_open:'Hast du bereits eine pool_daten.json?\n\nOK = Bestehende öffnen\nAbbrechen = Neue erstellen',
+  dlg_del:'Eintrag löschen?',
+  err_date:'Bitte Datum eingeben.', err_val:'Mindestens einen Messwert eintragen.',
+  footer:'Keine Internetverbindung nötig · Chrome & Edge',
+},
+en:{
+  nav_pool:'⚙ Pool Info', nav_meas:'📋 Measurements', nav_dose:'💊 Dosing',
+  vol_label:'Volume',
+  file_none:'No data file linked – data in browser cache only',
+  file_ok:'File: ',
+  file_open:'📂 Open / create file', file_save:'💾 Save',
+  pool_config:'POOL CONFIGURATION',
+  lbl_shape:'Pool shape', lbl_length:'Length (cm)', lbl_width:'Width (cm)',
+  lbl_height:'Height (cm)', lbl_fill:'Fill level (%)',
+  shape_oval:'Oval / Ellipse', shape_round:'Round / Circle', shape_rect:'Rectangular',
+  hint_oval:'Oval: Length = longest diameter  ·  Width = shortest diameter',
+  hint_round:'Round: Only one diameter needed – width is set automatically',
+  hint_rect:'',
+  ll_oval:'Long diameter (cm)', lb_oval:'Short diameter (cm)',
+  ll_round:'Diameter (cm)',     lb_round:'Width (cm)',
+  ll_rect:'Length (cm)',        lb_rect:'Width (cm)',
+  ideal_title:'IDEAL VALUES – REFERENCE',
+  ref_param:'Parameter', ref_min:'Min', ref_ideal:'Ideal', ref_max:'Max', ref_unit:'Unit', ref_note:'Note',
+  ref_ph:'< 7.2 → pH-Plus  |  > 7.6 → pH-Minus',
+  ref_cl_lbl:'Free Chlorine', ref_cl:'< 0.5 → add chlorine',
+  ref_mv:'Good disinfection value',
+  ref_temp_lbl:'Temperature', ref_temp:'Info only',
+  meas_add:'NEW MEASUREMENT',
+  lbl_date:'Date', lbl_time:'Time', lbl_temp:'Temp (°C)', lbl_cl:'Chlorine (mg/l)',
+  btn_save:'Save',
+  meas_log:'MEASUREMENT LOG',
+  st_ok:'OK', st_check:'Check', st_crit:'Critical',
+  col_date:'Date', col_temp:'Temp', col_cl:'Chlorine',
+  col_ph_s:'pH Status', col_cl_s:'Cl Status', col_mv_s:'MV Status',
+  col_action:'Recommendation', col_total:'Overall',
+  meas_empty:'No entries yet. Add a measurement ↑',
+  dose_title:'DOSING CALCULATOR',
+  dose_vol_hint:'Volume from pool configuration',
+  d_phm_title:'pH-MINUS (DECREASER)', d_php_title:'pH-PLUS (INCREASER)',
+  d_cl_title:'CHLORINE – QUICK-CHLORINE GRANULES',
+  d_cur:'Current value', d_tgt:'Target value',
+  d_cl_cur:'Current (mg/l)', d_cl_tgt:'Target (mg/l)',
+  d_phm_hint:'In the evening, small amounts, run pump 30 min',
+  d_php_hint:'Add in small portions, wait 15 min each time',
+  d_cl_hint:'Spread in evening, run pump at least 2h',
+  d_shock_lbl:'⚡ Shock chlorination (20 g/m³):',
+  d_shock_hint:'For algae, heavy use or after rain',
+  a_ok:'✓ No action needed',
+  a_phm:'pH-Minus: {g} g', a_php:'pH-Plus: {g} g',
+  a_cl:'Quick chlorine: {g} g (target 1.0 mg/l)',
+  a_cl_hi:'Chlorine too high – wait / dilute',
+  a_mv_lo:'Check & raise chlorine level', a_mv_hi:'Redox elevated – check Cl & pH',
+  ov_ok:'✓ ALL OK', ov_warn:'⚠ CHECK', ov_crit:'✗ CRITICAL',
+  r_phm:'Add {g} g pH-Minus', r_phm_no:'pH not too high',
+  r_php:'Add {g} g pH-Plus',  r_php_no:'pH not too low',
+  r_cl:'Add {g} g quick chlorine', r_cl_no:'Chlorine sufficient',
+  r_shock:'Shock: {g} g  (20 g × {m3} m³)',
+  toast_saved:'✓ Saved', toast_load:'✓ Data loaded',
+  toast_new:'✓ New file created', toast_err:'⚠ Save failed',
+  dlg_open:'Do you have an existing pool_data.json?\n\nOK = Open existing\nCancel = Create new',
+  dlg_del:'Delete this entry?',
+  err_date:'Please enter a date.', err_val:'Enter at least one measurement value.',
+  footer:'No internet needed · Chrome & Edge',
+}
+};
+
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let lang = 'de';
+let poolVol = 0;
+let measurements = [];
+let fileHandle = null;
+
+/* ═══════════════════════════════════════════════════════════
+   i18n
+═══════════════════════════════════════════════════════════ */
+function t(k, v) {
+  let s = (TR[lang] && TR[lang][k]) || k;
+  if (v) Object.entries(v).forEach(([a,b]) => s = s.replace(`{${a}}`, b));
+  return s;
+}
+function applyTr() {
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const k = el.getAttribute('data-t');
+    if (el.tagName === 'OPTION') el.textContent = t(k);
+    else el.textContent = t(k);
+  });
+  document.getElementById('vol-label').textContent = t('vol_label');
+}
+function setLang(l) {
+  lang = l;
+  document.getElementById('btn-de').classList.toggle('active', l==='de');
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  document.documentElement.lang = l;
+  applyTr(); onShape(); renderTable(); calcDose(); updateFB(); saveData();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   POOL SHAPE
+═══════════════════════════════════════════════════════════ */
+function onShape() {
+  const s = document.getElementById('pool-form').value;
+  const fldB = document.getElementById('fld-b');
+  const lblL = document.getElementById('lbl-l');
+  const lblB = document.getElementById('lbl-b');
+  const inpB = document.getElementById('pool-b');
+  const hint = document.getElementById('shape-hint');
+
+  lblL.textContent = t(`ll_${s}`);
+  lblB.textContent = t(`lb_${s}`);
+
+  if (s === 'round') {
+    fldB.classList.add('dim');
+    inpB.disabled = true;
+    inpB.value = document.getElementById('pool-l').value;
+  } else {
+    fldB.classList.remove('dim');
+    inpB.disabled = false;
+  }
+
+  const h = t(`hint_${s}`);
+  hint.textContent = h;
+  hint.classList.toggle('on', !!h);
+  calcVol();
+}
+function onLChange() {
+  if (document.getElementById('pool-form').value === 'round') {
+    document.getElementById('pool-b').value = document.getElementById('pool-l').value;
+  }
+  calcVol();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VOLUME
+═══════════════════════════════════════════════════════════ */
+function calcVol() {
+  const s    = document.getElementById('pool-form').value;
+  const l    = parseFloat(document.getElementById('pool-l').value) || 0;
+  const b    = s === 'round' ? l : (parseFloat(document.getElementById('pool-b').value) || 0);
+  const h    = parseFloat(document.getElementById('pool-h').value) || 0;
+  const fill = parseFloat(document.getElementById('pool-fill').value) || 80;
+  const f    = s === 'rect' ? 1.0 : Math.PI / 4;
+  poolVol = Math.round(l/100 * b/100 * h/100 * f * (fill/100) * 1000);
+  const m3 = (poolVol/1000).toFixed(3);
+
+  document.getElementById('vol-liter').textContent = poolVol.toLocaleString('de-DE') + ' L';
+  document.getElementById('vol-m3').textContent    = m3 + ' m³';
+  document.getElementById('hdr-vol').textContent   = poolVol.toLocaleString('de-DE') + ' L';
+  document.getElementById('vol-formula').textContent = s==='rect' ? 'L × B × H × Füllst.' : 'π/4 × L × B × H × Füllst.';
+  document.getElementById('dose-vol').textContent  = poolVol.toLocaleString('de-DE') + ' L  /  ' + m3 + ' m³';
+  calcDose(); saveData();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STATUS & ACTIONS
+═══════════════════════════════════════════════════════════ */
+const phS = v => v>=7.2&&v<=7.6?'ok':v<7.0||v>7.8?'crit':'warn';
+const clS = v => v>=0.5&&v<=1.5?'ok':v<0.2||v>3.0?'crit':'warn';
+const mvS = v => v>=650&&v<=750?'ok':v<600||v>800?'crit':'warn';
+
+function badge(s) {
+  return `<span class="badge b-${s}">${t('st_'+{ok:'ok',warn:'check',crit:'crit'}[s])}</span>`;
+}
+function overall(a,b,c) {
+  if([a,b,c].includes('crit')) return ['ov-crit','ov_crit'];
+  if([a,b,c].includes('warn')) return ['ov-warn','ov_warn'];
+  return ['ov-ok','ov_ok'];
+}
+function phAction(v, vol) {
+  if(v>=7.2&&v<=7.6) return `<span class="a-ok">${t('a_ok')}</span>`;
+  if(v>7.6) { const g=Math.round(Math.max((v-7.4)/0.1,1)*15*(vol/1000)); return `<span class="a-${v>7.8?'crit':'warn'}">${t('a_phm',{g})}</span>`; }
+  const g=Math.round(Math.max((7.4-v)/0.1,1)*15*(vol/1000));
+  return `<span class="a-${v<7.0?'crit':'warn'}">${t('a_php',{g})}</span>`;
+}
+function clAction(v, vol) {
+  if(v>=0.5&&v<=1.5) return `<span class="a-ok">${t('a_ok')}</span>`;
+  if(v<0.5) { const g=Math.round(Math.max(1.0-v,0)*2*(vol/1000)); return `<span class="a-${v<0.2?'crit':'warn'}">${t('a_cl',{g})}</span>`; }
+  return `<span class="a-warn">${t('a_cl_hi')}</span>`;
+}
+function mvAction(v) {
+  if(v>=650&&v<=750) return `<span class="a-ok">${t('a_ok')}</span>`;
+  return `<span class="a-warn">${t(v<650?'a_mv_lo':'a_mv_hi')}</span>`;
+}
+function buildRec(ps,cs,ms,pv,cv,mv,vol) {
+  const l=[];
+  if(ps!=='ok') l.push(phAction(pv,vol));
+  if(cs!=='ok') l.push(clAction(cv,vol));
+  if(ms!=='ok') l.push(mvAction(mv));
+  return l.length ? l.join('<br>') : `<span class="a-ok">${t('a_ok')}</span>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════════════════════ */
+function showTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='t-dose') calcDose();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MEASUREMENTS
+═══════════════════════════════════════════════════════════ */
+function addEntry() {
+  const err = document.getElementById('m-err');
+  err.style.display = 'none';
+  const date = document.getElementById('m-date').value;
+  const time = document.getElementById('m-time').value;
+  const temp = parseFloat(document.getElementById('m-temp').value);
+  const ph   = parseFloat(document.getElementById('m-ph').value);
+  const cl   = parseFloat(document.getElementById('m-cl').value);
+  const mv   = parseFloat(document.getElementById('m-mv').value);
+  if(!date){ err.textContent=t('err_date'); err.style.display='block'; return; }
+  if(isNaN(ph)&&isNaN(cl)&&isNaN(mv)){ err.textContent=t('err_val'); err.style.display='block'; return; }
+  measurements.unshift({date,time,temp,ph,cl,mv,vol:poolVol});
+  saveData(); renderTable();
+  ['m-temp','m-ph','m-cl','m-mv'].forEach(id=>document.getElementById(id).value='');
+}
+function delEntry(i) {
+  if(!confirm(t('dlg_del'))) return;
+  measurements.splice(i,1); saveData(); renderTable();
+}
+function renderTable() {
+  const tb = document.getElementById('meas-body');
+  if(!measurements.length){
+    tb.innerHTML=`<tr><td colspan="11" class="no-data">${t('meas_empty')}</td></tr>`; return;
+  }
+  tb.innerHTML = measurements.map((m,i)=>{
+    const haP=!isNaN(m.ph)&&m.ph!=null, haC=!isNaN(m.cl)&&m.cl!=null, haM=!isNaN(m.mv)&&m.mv!=null;
+    const ps=haP?phS(m.ph):null, cs=haC?clS(m.cl):null, ms=haM?mvS(m.mv):null;
+    const [oc,ok]=[ps,cs,ms].filter(Boolean).length ? overall(ps||'ok',cs||'ok',ms||'ok') : ['',''];
+    const ds=m.date?new Date(m.date+'T12:00:00').toLocaleDateString('de-DE'):'–';
+    const ts=m.time?`<br><span style="color:var(--self-text-3);font-size:.68rem">${m.time}</span>`:'';
+    const vol=m.vol||poolVol;
+    const rec=(haP||haC||haM)?buildRec(ps||'ok',cs||'ok',ms||'ok',m.ph,m.cl,m.mv,vol):'–';
+    return `<tr>
+      <td class="dc">${ds}${ts}</td>
+      <td>${!isNaN(m.temp)&&m.temp!==''?m.temp+' °C':'<span class="dash">–</span>'}</td>
+      <td>${haP?m.ph.toFixed(2):'<span class="dash">–</span>'}</td>
+      <td>${haC?m.cl.toFixed(2)+' mg/l':'<span class="dash">–</span>'}</td>
+      <td>${haM?Math.round(m.mv)+' mV':'<span class="dash">–</span>'}</td>
+      <td>${ps?badge(ps):'<span class="dash">–</span>'}</td>
+      <td>${cs?badge(cs):'<span class="dash">–</span>'}</td>
+      <td>${ms?badge(ms):'<span class="dash">–</span>'}</td>
+      <td class="act">${rec}</td>
+      <td>${ok?`<span class="${oc}">${t(ok)}</span>`:'<span class="dash">–</span>'}</td>
+      <td><button class="btn btn-del" onclick="delEntry(${i})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DOSING CALC
+═══════════════════════════════════════════════════════════ */
+function calcDose() {
+  const vol=poolVol, m3=vol/1000;
+  const pc=parseFloat(document.getElementById('d-ph-cur').value)||0;
+  const pt=parseFloat(document.getElementById('d-ph-tgt').value)||7.4;
+  document.getElementById('r-phm').textContent =
+    pc>pt&&vol>0 ? t('r_phm',{g:Math.round(Math.max((pc-pt)/0.1,0)*15*m3)}) : t('r_phm_no');
+
+  const hc=parseFloat(document.getElementById('d-php-cur').value)||0;
+  const ht=parseFloat(document.getElementById('d-php-tgt').value)||7.4;
+  document.getElementById('r-php').textContent =
+    hc<ht&&vol>0 ? t('r_php',{g:Math.round(Math.max((ht-hc)/0.1,0)*15*m3)}) : t('r_php_no');
+
+  const cc=parseFloat(document.getElementById('d-cl-cur').value)||0;
+  const ct=parseFloat(document.getElementById('d-cl-tgt').value)||1.0;
+  document.getElementById('r-cl').textContent =
+    cc<ct&&vol>0 ? t('r_cl',{g:Math.round(Math.max(ct-cc,0)*2*m3)}) : t('r_cl_no');
+
+  document.getElementById('r-shock').textContent =
+    vol>0 ? t('r_shock',{g:Math.round(20*m3),m3:m3.toFixed(3)}) : '–';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CSV EXPORT
+═══════════════════════════════════════════════════════════ */
+function exportCSV() {
+  if(!measurements.length){alert('No data.');return;}
+  const h='Date;Time;Temp;pH;Chlorine (mg/l);Redox (mV);pH Status;Cl Status;MV Status;Volume (L)\n';
+  const rows=measurements.map(m=>{
+    return[m.date,m.time??'',m.temp??'',m.ph??'',m.cl??'',m.mv??'',
+      !isNaN(m.ph)?{ok:'OK',warn:'Check',crit:'Critical'}[phS(m.ph)]:'',
+      !isNaN(m.cl)?{ok:'OK',warn:'Check',crit:'Critical'}[clS(m.cl)]:'',
+      !isNaN(m.mv)?{ok:'OK',warn:'Check',crit:'Critical'}[mvS(m.mv)]:'',
+      m.vol??''].join(';');
+  }).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['﻿'+h+rows],{type:'text/csv;charset=utf-8'}));
+  a.download='pool_measurements.csv'; a.click();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FILE SYSTEM (IndexedDB + File System Access API)
+═══════════════════════════════════════════════════════════ */
+function openDB(){return new Promise((r,e)=>{const q=indexedDB.open('selfpool_db',1);q.onupgradeneeded=ev=>ev.target.result.createObjectStore('s');q.onsuccess=ev=>r(ev.target.result);q.onerror=e;});}
+async function idbGet(k){const db=await openDB();return new Promise((r,e)=>{const q=db.transaction('s','readonly').objectStore('s').get(k);q.onsuccess=ev=>r(ev.target.result);q.onerror=e;});}
+async function idbSet(k,v){const db=await openDB();return new Promise((r,e)=>{const tx=db.transaction('s','readwrite');tx.objectStore('s').put(v,k);tx.oncomplete=r;tx.onerror=e;});}
+
+function updateFB() {
+  const bar=document.getElementById('file-bar');
+  const icon=document.getElementById('fb-icon');
+  const txt=document.getElementById('fb-text');
+  const sav=document.getElementById('fb-save');
+  if(fileHandle){
+    bar.classList.add('ok'); icon.textContent='✓';
+    txt.textContent=t('file_ok')+fileHandle.name;
+    sav.style.display='inline-block'; sav.textContent=t('file_save');
+  } else {
+    bar.classList.remove('ok'); icon.textContent='⚠';
+    txt.textContent=t('file_none'); sav.style.display='none';
+  }
+  document.querySelector('[data-t="file_open"]').textContent=t('file_open');
+}
+
+async function connectFile() {
+  if(!window.showOpenFilePicker){alert('Bitte Chrome oder Edge verwenden / Please use Chrome or Edge.');return;}
+  try {
+    if(confirm(t('dlg_open'))) {
+      const[h]=await window.showOpenFilePicker({types:[{description:'Pool JSON',accept:{'application/json':['.json']}}]});
+      fileHandle=h; await idbSet('fh',h);
+      applyData(JSON.parse(await (await h.getFile()).text()));
+      updateFB(); toast(t('toast_load'));
+    } else {
+      const h=await window.showSaveFilePicker({suggestedName:'pool_daten.json',types:[{description:'Pool JSON',accept:{'application/json':['.json']}}]});
+      fileHandle=h; await idbSet('fh',h);
+      await writeFile(); updateFB(); toast(t('toast_new'));
+    }
+  } catch(e){if(e.name!=='AbortError')console.error(e);}
+}
+
+async function tryRestore(){
+  try{
+    const h=await idbGet('fh'); if(!h)return false;
+    const p=await h.queryPermission({mode:'readwrite'});
+    if(p==='granted'){fileHandle=h;return true;}
+    const r=await h.requestPermission({mode:'readwrite'});
+    if(r==='granted'){fileHandle=h;return true;}
+  }catch(e){}
+  return false;
+}
+
+async function writeFile(){
+  if(!fileHandle)return;
+  try{
+    const w=await fileHandle.createWritable();
+    await w.write(JSON.stringify({pool:poolCfg(),measurements,lang},null,2));
+    await w.close();
+  }catch(e){toast(t('toast_err'),true);}
+}
+
+async function manualSave(){await writeFile();toast(t('toast_saved'));}
+
+function toast(msg,err=false){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className=err?'err':'';
+  el.style.opacity='1';
+  setTimeout(()=>el.style.opacity='0',2200);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DATA HELPERS
+═══════════════════════════════════════════════════════════ */
+function poolCfg(){return{form:document.getElementById('pool-form').value,l:document.getElementById('pool-l').value,b:document.getElementById('pool-b').value,h:document.getElementById('pool-h').value,fill:document.getElementById('pool-fill').value};}
+
+function applyData(d){
+  if(d.pool){
+    document.getElementById('pool-form').value=d.pool.form||'oval';
+    document.getElementById('pool-l').value=d.pool.l||260;
+    document.getElementById('pool-b').value=d.pool.b||160;
+    document.getElementById('pool-h').value=d.pool.h||65;
+    document.getElementById('pool-fill').value=d.pool.fill||80;
+  }
+  measurements=d.measurements||[];
+  if(d.lang){ lang=d.lang; document.getElementById('btn-'+lang).classList.add('active'); document.getElementById('btn-'+(lang==='de'?'en':'de')).classList.remove('active'); document.documentElement.lang=lang; }
+  applyTr(); onShape(); calcVol(); renderTable();
+}
+
+function saveData(){
+  const data={pool:poolCfg(),measurements,lang};
+  localStorage.setItem('selfpooltracker_v1',JSON.stringify(data));
+  if(fileHandle) writeFile().then(()=>toast(t('toast_saved')));
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', async()=>{
+  const now=new Date();
+  document.getElementById('m-date').valueAsDate=now;
+  document.getElementById('m-time').value=now.toTimeString().slice(0,5);
+
+  const ok=await tryRestore();
+  if(ok){
+    try{
+      applyData(JSON.parse(await (await fileHandle.getFile()).text()));
+      updateFB(); return;
+    }catch(e){fileHandle=null;}
+  }
+  const ls=localStorage.getItem('selfpooltracker_v1');
+  if(ls){try{applyData(JSON.parse(ls));}catch(e){}}
+  else{applyTr();onShape();calcVol();renderTable();}
+  updateFB();
+});
+</script>
+</body>
+</html>
