@@ -6,7 +6,7 @@
 **Pool water-quality tracker that runs entirely in your browser — pH, chlorine, redox & temperature logging with traffic-light status and dosing recommendations. No server, no cloud, no account.**
 
 ![Type](https://img.shields.io/badge/type-browser%20app-33A78C)
-![Version](https://img.shields.io/badge/version-1.0.3-33A78C)
+![Version](https://img.shields.io/badge/version-1.0.4-33A78C)
 ![License](https://img.shields.io/badge/license-MIT-8A9CAA)
 ![Stack](https://img.shields.io/badge/stack-single--file%20HTML-43D3AD)
 ![Storage](https://img.shields.io/badge/storage-local%20file%20%2F%20localStorage-9DBDD0)

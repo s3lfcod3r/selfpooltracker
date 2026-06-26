@@ -310,6 +310,9 @@ footer a{color:var(--self-teal);text-decoration:none}
           <span><span class="ld" style="background:var(--self-red)"></span><span data-t="st_crit">Kritisch</span></span>
         </div>
         <button class="btn btn-csv" onclick="exportCSV()">↓ CSV</button>
+        <button class="btn btn-csv" onclick="exportBackup()">💾 Backup</button>
+        <button class="btn btn-csv" onclick="document.getElementById('import-file').click()">📥 Import</button>
+        <input type="file" id="import-file" accept="application/json,.json" style="display:none" onchange="importBackup(this)">
       </div>
     </div>
     <div class="tbl-wrap">
@@ -390,8 +393,8 @@ footer a{color:var(--self-teal);text-decoration:none}
   <a href="https://github.com/s3lfcod3r/selfpooltracker" target="_blank" rel="noopener">GitHub</a>
   &nbsp;·&nbsp;
   <a href="https://selfcoder.de" target="_blank" rel="noopener">selfcoder.de</a>
-  &nbsp;·&nbsp;
-  <span data-t="footer">Keine Internetverbindung nötig</span>
+  <span id="offline-note">&nbsp;·&nbsp;
+  <span data-t="footer">Keine Internetverbindung nötig</span></span>
 </footer>
 
 <script>
@@ -452,6 +455,7 @@ de:{
   r_cl:'{g} g Schnellchlor zugeben', r_cl_no:'Chlorgehalt ausreichend',
   r_shock:'Schockchlor: {g} g  (20 g × {m3} m³)',
   toast_saved:'✓ Gespeichert', toast_load:'✓ Daten geladen',
+  toast_import:'✓ Backup eingelesen', toast_import_err:'⚠ Keine gültige Backup-Datei',
   toast_new:'✓ Neue Datei erstellt', toast_err:'⚠ Speichern fehlgeschlagen',
   dlg_open:'Hast du bereits eine pool_daten.json?\n\nOK = Bestehende öffnen\nAbbrechen = Neue erstellen',
   dlg_del:'Eintrag löschen?',
@@ -511,6 +515,7 @@ en:{
   r_cl:'Add {g} g quick chlorine', r_cl_no:'Chlorine sufficient',
   r_shock:'Shock: {g} g  (20 g × {m3} m³)',
   toast_saved:'✓ Saved', toast_load:'✓ Data loaded',
+  toast_import:'✓ Backup imported', toast_import_err:'⚠ Not a valid backup file',
   toast_new:'✓ New file created', toast_err:'⚠ Save failed',
   dlg_open:'Do you have an existing pool_data.json?\n\nOK = Open existing\nCancel = Create new',
   dlg_del:'Delete this entry?',
@@ -761,6 +766,35 @@ function exportCSV() {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   BACKUP / IMPORT (komplette Daten als JSON — geräteunabhängig)
+═══════════════════════════════════════════════════════════ */
+function exportBackup() {
+  const data=JSON.stringify({_app:'selfpooltracker',_v:1,pool:poolCfg(),measurements,lang},null,2);
+  const name='selfpooltracker-backup.json';
+  // Android-App: ueber die native Bruecke ins Dateisystem schreiben
+  if(window.SelfPoolAndroid&&typeof window.SelfPoolAndroid.saveJson==='function'){
+    try{ window.SelfPoolAndroid.saveJson(name,data); return; }catch(e){ console.error(e); }
+  }
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));
+  a.download=name; a.click();
+}
+function importBackup(input) {
+  const file=input.files&&input.files[0];
+  if(!file){ return; }
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!d || (!Array.isArray(d.measurements) && !d.pool)) throw new Error('kein gültiges Backup');
+      applyData(d); saveData(); toast(t('toast_import'));
+    }catch(err){ console.error(err); toast(t('toast_import_err'),true); }
+    input.value='';
+  };
+  reader.readAsText(file);
+}
+
+/* ═══════════════════════════════════════════════════════════
    FILE SYSTEM (IndexedDB + File System Access API)
 ═══════════════════════════════════════════════════════════ */
 function openDB(){return new Promise((r,e)=>{const q=indexedDB.open('selfpool_db',1);q.onupgradeneeded=ev=>ev.target.result.createObjectStore('s');q.onsuccess=ev=>r(ev.target.result);q.onerror=e;});}
@@ -859,6 +893,10 @@ function saveData(){
    INIT
 ═══════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', async()=>{
+  // "Keine Internetverbindung nötig" nur lokal/als App (file://) zeigen — auf der
+  // gehosteten Webseite (pool.selfcoder.de) ergibt der Hinweis keinen Sinn.
+  if(location.protocol!=='file:'){ const n=document.getElementById('offline-note'); if(n) n.remove(); }
+
   const now=new Date();
   document.getElementById('m-date').valueAsDate=now;
   document.getElementById('m-time').value=now.toTimeString().slice(0,5);
