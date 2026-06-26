@@ -66,6 +66,16 @@ nav button:hover:not(.active){color:var(--self-text-2)}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 .gauto{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;align-items:end}
 @media(max-width:600px){.g2,.g3,.gauto{grid-template-columns:1fr}}
+/* ── Mobile header: prevent overflow (lang toggle / volume pill getting cut) ── */
+@media(max-width:560px){
+  header{padding:10px 14px;gap:8px;flex-wrap:wrap}
+  .logo{gap:8px;min-width:0}
+  .logo-wm{font-size:1.05rem}
+  .header-r{gap:8px}
+  .vol-pill{padding:3px 10px;font-size:.72rem}
+  nav{padding:0 10px}
+  nav button{padding:10px 12px;font-size:.78rem}
+}
 
 /* ── Fields ─────────────────────────────────────────────── */
 .field label{display:block;font-size:.68rem;font-family:var(--self-font-mono);letter-spacing:.08em;color:var(--self-text-3);text-transform:uppercase;margin-bottom:5px}
@@ -80,7 +90,7 @@ nav button:hover:not(.active){color:var(--self-text-2)}
 
 /* ── Volume result ──────────────────────────────────────── */
 .vol-box{margin-top:14px;background:var(--self-bg-3);border:1px solid var(--self-teal-deep);border-radius:var(--self-r);padding:14px 20px;display:flex;align-items:center;gap:20px;box-shadow:var(--self-glow)}
-.vol-big{font-family:var(--self-font-mono);font-size:1.8rem;font-weight:700;color:var(--self-teal-bright)}
+.vol-big{font-family:var(--self-font-mono);font-size:1.8rem;font-weight:700;color:var(--self-teal-bright);white-space:nowrap}
 .vol-small{font-family:var(--self-font-mono);font-size:.82rem;color:var(--self-text-2)}
 .vol-formula{font-family:var(--self-font-mono);font-size:.72rem;color:var(--self-text-3);margin-left:auto}
 
@@ -491,12 +501,17 @@ let lang = 'de';
 let poolVol = 0;
 let measurements = [];
 let fileHandle = null;
+// File System Access API is desktop-only — never available on Android (APK or
+// mobile browser), even if a partial shim exists. Gate all file features on this.
+const HAS_FS = !!window.showOpenFilePicker && !/Android/i.test(navigator.userAgent || '');
 
 /* ═══════════════════════════════════════════════════════════
    i18n
 ═══════════════════════════════════════════════════════════ */
 function t(k, v) {
-  let s = (TR[lang] && TR[lang][k]) || k;
+  // key-existence check (NOT truthiness) — empty strings like hint_rect:'' must
+  // stay empty, otherwise the literal key name would leak into the UI.
+  let s = (TR[lang] && k in TR[lang]) ? TR[lang][k] : k;
   if (v) Object.entries(v).forEach(([a,b]) => s = s.replace(`{${a}}`, b));
   return s;
 }
@@ -729,9 +744,9 @@ async function idbSet(k,v){const db=await openDB();return new Promise((r,e)=>{co
 
 function updateFB() {
   const bar=document.getElementById('file-bar');
-  // No File System Access API (Android WebView / Firefox): hide the file bar
-  // entirely — data persists automatically in localStorage on this device.
-  if(!window.showOpenFilePicker){ bar.style.display='none'; return; }
+  // No File System Access API (Android / Firefox): hide the file bar entirely —
+  // data persists automatically in localStorage on this device.
+  if(!HAS_FS){ bar.style.display='none'; return; }
   const icon=document.getElementById('fb-icon');
   const txt=document.getElementById('fb-text');
   const sav=document.getElementById('fb-save');
@@ -747,7 +762,7 @@ function updateFB() {
 }
 
 async function connectFile() {
-  if(!window.showOpenFilePicker){alert('Bitte Chrome oder Edge verwenden / Please use Chrome or Edge.');return;}
+  if(!HAS_FS){alert('Bitte Chrome oder Edge verwenden / Please use Chrome or Edge.');return;}
   try {
     if(confirm(t('dlg_open'))) {
       const[h]=await window.showOpenFilePicker({types:[{description:'Pool JSON',accept:{'application/json':['.json']}}]});
