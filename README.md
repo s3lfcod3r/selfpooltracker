@@ -31,6 +31,7 @@ SelfPoolTracker is a single-file web app for keeping your pool chemistry in chec
 - **Dosing recommendations** — pH-Minus, pH-Plus and quick-chlorine amounts calculated from your pool volume
 - **Dosing calculator** — standalone calculator for any manual adjustment, incl. shock chlorination
 - **File-based storage** — data saved to a local JSON file (no cloud, no cache loss) with `localStorage` fallback
+- **Backup & import** — export and re-import your full dataset (pool config + measurements) as a single JSON file; device-independent and works in any browser, including Android
 - **CSV export** — export your full measurement history
 - **DE / EN** — German and English UI, switchable at runtime
 - **Self brand** — dark theme, teal accent, Exo 2 + IBM Plex Mono
@@ -43,6 +44,18 @@ SelfPoolTracker is a single-file web app for keeping your pool chemistry in chec
 4. Enter measurements — data saves automatically after each entry
 
 > Firefox does not support the File System Access API. There it falls back to `localStorage`, so use Chrome or Edge for file-based storage.
+
+### Data storage
+
+Everything stays on your device — there is no server, no account and no network call. Concretely, the app uses three local mechanisms:
+
+- **`localStorage`** (key `selfpooltracker_v1`) — your pool config and measurements are auto-saved here after every change.
+- **IndexedDB** (database `selfpool_db`) — stores the `FileSystemFileHandle` so a linked data file can be re-opened automatically on the next visit (Chrome/Edge only).
+- **Local JSON file** (optional, File System Access API) — your data file on disk.
+
+All data is stored **in plain text** — it is not encrypted. The stored values (pool dimensions, pH, chlorine, redox, temperature) are not sensitive, but be aware that **clearing your browser cache / site data will erase the `localStorage` and IndexedDB copy.** To keep your history safe across cache clears, browsers or devices, link a **data file** (Chrome/Edge) or use **💾 Backup** to export a JSON file and **📥 Import** it later.
+
+> **Android app (SelfStore):** the WebView build exposes a native bridge (`window.SelfPoolAndroid`) so **CSV** and **JSON backup** exports are written straight to the device file system, since the File System Access API is not available there.
 
 ### Ideal values
 
@@ -67,6 +80,7 @@ SelfPoolTracker ist eine Single-File-Webapp, mit der du deine Poolwerte im Griff
 - **Dosierempfehlungen** — pH-Minus, pH-Plus und Schnellchlor-Mengen aus dem Pool-Volumen berechnet
 - **Dosierungsrechner** — eigenständiger Rechner für jede manuelle Anpassung, inkl. Schockchlorung
 - **Dateibasierte Speicherung** — Daten in einer lokalen JSON-Datei (keine Cloud, kein Cache-Verlust) mit `localStorage`-Fallback
+- **Backup & Import** — kompletter Datenbestand (Pool-Konfig + Messwerte) als einzelne JSON-Datei exportieren und wieder einlesen; geräteunabhängig, in jedem Browser und auf Android
 - **CSV-Export** — kompletter Messverlauf als CSV
 - **DE / EN** — deutsche und englische Oberfläche, zur Laufzeit umschaltbar
 - **Self-Brand** — Dark-Theme, Teal-Akzent, Exo 2 + IBM Plex Mono
@@ -80,6 +94,18 @@ SelfPoolTracker ist eine Single-File-Webapp, mit der du deine Poolwerte im Griff
 
 > Firefox unterstützt die File System Access API nicht. Dort greift der `localStorage`-Fallback — für Datei-Speicherung Chrome oder Edge nutzen.
 
+### Datenspeicherung
+
+Alles bleibt auf deinem Gerät — kein Server, kein Konto, kein Netzwerk-Aufruf. Konkret nutzt die App drei lokale Mechanismen:
+
+- **`localStorage`** (Key `selfpooltracker_v1`) — Pool-Konfig und Messwerte werden hier nach jeder Änderung automatisch gesichert.
+- **IndexedDB** (Datenbank `selfpool_db`) — speichert den `FileSystemFileHandle`, damit eine verknüpfte Datendatei beim nächsten Besuch automatisch wieder geöffnet werden kann (nur Chrome/Edge).
+- **Lokale JSON-Datei** (optional, File System Access API) — deine Datendatei auf der Festplatte.
+
+Alle Daten werden **im Klartext** gespeichert — sie sind nicht verschlüsselt. Die gespeicherten Werte (Pool-Maße, pH, Chlor, Redox, Temperatur) sind nicht sensibel, aber beachte: **Wird der Browser-Cache / die Website-Daten geleert, sind die Kopie in `localStorage` und IndexedDB weg.** Damit der Verlauf Cache-Leerungen, Browser- oder Gerätewechsel übersteht, eine **Datendatei** verknüpfen (Chrome/Edge) oder per **💾 Backup** eine JSON-Datei exportieren und später per **📥 Import** wieder einlesen.
+
+> **Android-App (SelfStore):** Der WebView-Build stellt eine native Bridge (`window.SelfPoolAndroid`) bereit, sodass **CSV-** und **JSON-Backup-**Exporte direkt ins Dateisystem des Geräts geschrieben werden — die File System Access API ist dort nicht verfügbar.
+
 ---
 
 ## Project structure
@@ -91,6 +117,7 @@ selfpooltracker/
 │   └── logo.png      # Branded SelfPoolTracker wordmark
 ├── logo/
 │   └── shield.png    # Self shield emblem (in-app header)
+├── LICENSE           # MIT license
 └── README.md
 ```
 

@@ -893,8 +893,19 @@ function applyData(d){
     document.getElementById('pool-h').value=d.pool.h||65;
     document.getElementById('pool-fill').value=d.pool.fill||80;
   }
-  measurements=d.measurements||[];
-  if(d.lang){ lang=d.lang; document.getElementById('btn-'+lang).classList.add('active'); document.getElementById('btn-'+(lang==='de'?'en':'de')).classList.remove('active'); document.documentElement.lang=lang; }
+  // Defensive: coerce every imported measurement to safe primitives. A tampered
+  // backup file must never inject HTML — renderTable() writes into innerHTML, so
+  // numbers stay numbers and date/time are reduced to a strict char whitelist.
+  measurements=(Array.isArray(d.measurements)?d.measurements:[]).map(m=>({
+    date:typeof m.date==='string'?m.date.replace(/[^0-9-]/g,'').slice(0,10):'',
+    time:typeof m.time==='string'?m.time.replace(/[^0-9:]/g,'').slice(0,5):'',
+    temp:Number(m.temp),
+    ph:Number(m.ph),
+    cl:Number(m.cl),
+    mv:Number(m.mv),
+    vol:Number(m.vol)
+  }));
+  if(d.lang==='de'||d.lang==='en'){ lang=d.lang; document.getElementById('btn-'+lang).classList.add('active'); document.getElementById('btn-'+(lang==='de'?'en':'de')).classList.remove('active'); document.documentElement.lang=lang; }
   applyTr(); onShape(); calcVol(); renderTable();
 }
 
