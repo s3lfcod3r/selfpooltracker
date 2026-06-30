@@ -8,7 +8,7 @@
 ### 🌐 Live: **[pool.selfcoder.de](https://pool.selfcoder.de)**
 
 [![Website](https://img.shields.io/badge/live-pool.selfcoder.de-33A78C?logo=githubpages&logoColor=white)](https://pool.selfcoder.de)
-![Version](https://img.shields.io/badge/version-1.0.4-33A78C)
+![Version](https://img.shields.io/badge/version-1.1.0-33A78C)
 ![License](https://img.shields.io/badge/license-MIT-8A9CAA)
 ![Stack](https://img.shields.io/badge/stack-single--file%20HTML-43D3AD)
 ![Storage](https://img.shields.io/badge/storage-local%20file%20%2F%20localStorage-9DBDD0)
