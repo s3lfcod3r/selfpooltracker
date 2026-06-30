@@ -178,7 +178,7 @@ footer a{color:var(--self-teal);text-decoration:none}
   table.dt td{display:flex;justify-content:space-between;align-items:center;gap:14px;text-align:right;min-width:0;border:none;border-bottom:1px solid var(--self-line);padding:7px 0;white-space:normal}
   table.dt tr td:last-child{border-bottom:none;justify-content:flex-end}
   table.dt td::before{content:attr(data-label);color:var(--self-text-3);font-family:var(--self-font-mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;text-align:left;flex:0 0 auto}
-  /* lange Werte (Empfehlung) duerfen schrumpfen/umbrechen statt rauszuragen */
+  /* lange Werte (Empfehlung) dürfen schrumpfen/umbrechen statt rauszuragen */
   table.dt td>*{min-width:0;overflow-wrap:anywhere}
   table.dt td.act{flex-direction:column;align-items:stretch;gap:3px;max-width:none;text-align:right}
   table.dt td.no-data{display:block;text-align:center;border:none}
@@ -786,7 +786,7 @@ function exportCSV() {
 function exportBackup() {
   const data=JSON.stringify({_app:'selfpooltracker',_v:1,pool:poolCfg(),measurements,lang},null,2);
   const name='selfpooltracker-backup.json';
-  // Android-App: ueber die native Bruecke ins Dateisystem schreiben
+  // Android-App: über die native Brücke ins Dateisystem schreiben
   if(window.SelfPoolAndroid&&typeof window.SelfPoolAndroid.saveJson==='function'){
     try{ window.SelfPoolAndroid.saveJson(name,data); return; }catch(e){ console.error(e); }
   }
