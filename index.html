@@ -220,6 +220,7 @@ footer a{color:var(--self-teal);text-decoration:none}
   <button class="active" onclick="showTab('t-pool',this)" data-t="nav_pool">⚙ Poolinfo</button>
   <button onclick="showTab('t-meas',this)" data-t="nav_meas">📋 Messwerte</button>
   <button onclick="showTab('t-dose',this)" data-t="nav_dose">💊 Dosierung</button>
+  <button onclick="showTab('t-pump',this)" data-t="nav_pump">🔄 Umwälzung</button>
 </nav>
 
 <!-- ── FILE BAR ────────────────────────────────────────────── -->
@@ -409,6 +410,48 @@ footer a{color:var(--self-teal);text-decoration:none}
   </div>
 </div>
 
+<div id="t-pump" class="tab">
+  <div class="card">
+    <div class="ct"><span class="ac">🔄</span> <span data-t="pump_title">UMWÄLZ-RECHNER</span></div>
+    <div class="info-box">
+      <strong id="pump-vol">–</strong>
+      <span data-t="dose_vol_hint">Volumen aus Pool-Konfiguration</span>
+    </div>
+
+    <div class="field" style="margin-top:6px">
+      <label data-t="pump_rate_lbl">Pumpenleistung (m³/h)</label>
+      <input type="number" id="pump-rate" step="0.5" min="0" placeholder="8" oninput="calcPump();saveData()">
+    </div>
+    <div class="dose-hint" data-t="pump_rate_hint">Förderleistung deiner Pumpe – steht auf dem Typenschild oder im Datenblatt.</div>
+
+    <div class="dose-block" style="border-color:var(--self-teal); margin-top:16px">
+      <h3 style="color:var(--self-teal-bright)" data-t="pump_runtime_lbl">Empfohlene Laufzeit (2× am Tag)</h3>
+      <div class="dose-res" id="r-runtime">–</div>
+      <div class="dose-hint" data-t="pump_runtime_hint">Faustregel: Wasser täglich 2× komplett umwälzen – am besten in 2–3 Blöcke aufteilen (z. B. 2×4 h).</div>
+      <div style="margin-top:12px">
+        <div class="dose-hint" data-t="pump_turnover_lbl">Zeit für 1× komplette Umwälzung</div>
+        <div class="dose-res" id="r-turnover">–</div>
+      </div>
+    </div>
+
+    <div class="dose-block" style="border-color:var(--self-blue)">
+      <h3 style="color:var(--self-blue)" data-t="pump_temp_res_lbl">Nach Wassertemperatur (Temp ÷ 2)</h3>
+      <div class="field">
+        <label data-t="pump_temp_lbl">Wassertemperatur (°C)</label>
+        <input type="number" id="pump-temp" step="0.5" min="0" placeholder="26" oninput="calcPump()">
+      </div>
+      <div class="dose-res" id="r-pumptemp">–</div>
+      <div class="dose-hint" data-t="pump_temp_res_hint">Wärmeres Wasser = längere Laufzeit (Algenschutz). Aus der letzten Messung übernommen.</div>
+    </div>
+
+    <div class="dose-block" style="border-color:var(--self-yellow)">
+      <h3 style="color:var(--self-yellow)" data-t="pump_min_lbl">Mindest-Pumpenleistung (2× in 8 h)</h3>
+      <div class="dose-res" id="r-minpump">–</div>
+      <div class="dose-hint" id="r-pumpstatus"></div>
+    </div>
+  </div>
+</div>
+
 </div><!-- /content -->
 
 <div id="toast"></div>
@@ -485,6 +528,21 @@ de:{
   dlg_del:'Eintrag löschen?',
   err_date:'Bitte Datum eingeben.', err_val:'Mindestens einen Messwert eintragen.',
   footer:'Keine Internetverbindung nötig',
+  nav_pump:'🔄 Umwälzung',
+  pump_title:'UMWÄLZ-RECHNER',
+  pump_rate_lbl:'Pumpenleistung (m³/h)',
+  pump_rate_hint:'Förderleistung deiner Pumpe – steht auf dem Typenschild oder im Datenblatt.',
+  pump_runtime_lbl:'Empfohlene Laufzeit (2× am Tag)',
+  pump_runtime_hint:'Faustregel: Wasser täglich 2× komplett umwälzen – am besten in 2–3 Blöcke aufteilen (z. B. 2×4 h).',
+  pump_turnover_lbl:'Zeit für 1× komplette Umwälzung',
+  pump_temp_res_lbl:'Nach Wassertemperatur (Temp ÷ 2)',
+  pump_temp_lbl:'Wassertemperatur (°C)',
+  pump_temp_res_hint:'Wärmeres Wasser = längere Laufzeit (Algenschutz). Aus der letzten Messung übernommen.',
+  pump_min_lbl:'Mindest-Pumpenleistung (2× in 8 h)',
+  pump_ok:'✓ Deine Pumpe schafft das locker.',
+  pump_small:'⚠ Pumpe evtl. zu klein – dann länger laufen lassen.',
+  pump_need_rate:'Pumpenleistung eingeben ↑',
+  pump_per_day:'/Tag',
 },
 en:{
   nav_pool:'⚙ Pool Info', nav_meas:'📋 Measurements', nav_dose:'💊 Dosing',
@@ -545,6 +603,21 @@ en:{
   dlg_del:'Delete this entry?',
   err_date:'Please enter a date.', err_val:'Enter at least one measurement value.',
   footer:'No internet needed',
+  nav_pump:'🔄 Circulation',
+  pump_title:'CIRCULATION CALCULATOR',
+  pump_rate_lbl:'Pump flow rate (m³/h)',
+  pump_rate_hint:'Your pump\'s flow rate – on the type plate or datasheet.',
+  pump_runtime_lbl:'Recommended runtime (2× per day)',
+  pump_runtime_hint:'Rule of thumb: circulate the water fully 2× a day – ideally split into 2–3 blocks (e.g. 2×4 h).',
+  pump_turnover_lbl:'Time for one full turnover',
+  pump_temp_res_lbl:'By water temperature (temp ÷ 2)',
+  pump_temp_lbl:'Water temperature (°C)',
+  pump_temp_res_hint:'Warmer water = longer runtime (algae protection). Taken from your last measurement.',
+  pump_min_lbl:'Minimum pump rate (2× in 8 h)',
+  pump_ok:'✓ Your pump handles this easily.',
+  pump_small:'⚠ Pump may be too small – let it run longer.',
+  pump_need_rate:'Enter pump flow rate ↑',
+  pump_per_day:'/day',
 },
 fr:{
   nav_pool:'⚙ Infos piscine', nav_meas:'📋 Mesures', nav_dose:'💊 Dosage',
@@ -605,6 +678,21 @@ fr:{
   dlg_del:'Supprimer cette entrée ?',
   err_date:'Veuillez saisir une date.', err_val:'Saisissez au moins une valeur de mesure.',
   footer:'Aucune connexion Internet requise',
+  nav_pump:'🔄 Circulation',
+  pump_title:'CALCULATEUR DE CIRCULATION',
+  pump_rate_lbl:'Débit de la pompe (m³/h)',
+  pump_rate_hint:'Le débit de votre pompe – sur la plaque signalétique ou la fiche technique.',
+  pump_runtime_lbl:'Durée recommandée (2× par jour)',
+  pump_runtime_hint:'Règle générale : faites circuler toute l\'eau 2× par jour – idéalement répartie en 2–3 blocs (p. ex. 2×4 h).',
+  pump_turnover_lbl:'Temps pour un renouvellement complet',
+  pump_temp_res_lbl:'Selon la température de l\'eau (temp. ÷ 2)',
+  pump_temp_lbl:'Température de l\'eau (°C)',
+  pump_temp_res_hint:'Eau plus chaude = durée plus longue (protection contre les algues). D\'après votre dernière mesure.',
+  pump_min_lbl:'Débit minimal de la pompe (2× en 8 h)',
+  pump_ok:'✓ Votre pompe le gère sans problème.',
+  pump_small:'⚠ La pompe est peut-être trop petite – laissez-la tourner plus longtemps.',
+  pump_need_rate:'Saisissez le débit de la pompe ↑',
+  pump_per_day:'/jour',
 },
 es:{
   nav_pool:'⚙ Información de la piscina', nav_meas:'📋 Mediciones', nav_dose:'💊 Dosificación',
@@ -665,6 +753,21 @@ es:{
   dlg_del:'¿Eliminar esta entrada?',
   err_date:'Por favor, introduce una fecha.', err_val:'Introduce al menos un valor de medición.',
   footer:'No se necesita internet',
+  nav_pump:'🔄 Circulación',
+  pump_title:'CALCULADORA DE CIRCULACIÓN',
+  pump_rate_lbl:'Caudal de la bomba (m³/h)',
+  pump_rate_hint:'El caudal de tu bomba – en la placa de características o en la ficha técnica.',
+  pump_runtime_lbl:'Tiempo de funcionamiento recomendado (2× al día)',
+  pump_runtime_hint:'Regla general: haz circular el agua por completo 2× al día – idealmente repartido en 2–3 bloques (p. ej. 2×4 h).',
+  pump_turnover_lbl:'Tiempo para una renovación completa',
+  pump_temp_res_lbl:'Según la temperatura del agua (temp ÷ 2)',
+  pump_temp_lbl:'Temperatura del agua (°C)',
+  pump_temp_res_hint:'Agua más caliente = mayor tiempo de funcionamiento (protección contra algas). Tomada de tu última medición.',
+  pump_min_lbl:'Caudal mínimo de la bomba (2× en 8 h)',
+  pump_ok:'✓ Tu bomba lo maneja sin problemas.',
+  pump_small:'⚠ La bomba puede ser demasiado pequeña – déjala funcionar más tiempo.',
+  pump_need_rate:'Introduce el caudal de la bomba ↑',
+  pump_per_day:'/día',
   },
 it:{
   nav_pool:'⚙ Info piscina', nav_meas:'📋 Misurazioni', nav_dose:'💊 Dosaggio',
@@ -725,6 +828,21 @@ it:{
   dlg_del:'Eliminare questa voce?',
   err_date:'Inserisci una data.', err_val:'Inserisci almeno un valore di misurazione.',
   footer:'Nessuna connessione internet necessaria',
+  nav_pump:'🔄 Circolazione',
+  pump_title:'CALCOLATORE DI CIRCOLAZIONE',
+  pump_rate_lbl:'Portata della pompa (m³/h)',
+  pump_rate_hint:'La portata della tua pompa – sulla targhetta o nella scheda tecnica.',
+  pump_runtime_lbl:'Tempo di funzionamento consigliato (2× al giorno)',
+  pump_runtime_hint:'Regola generale: fai circolare completamente l\'acqua 2× al giorno – idealmente suddiviso in 2–3 blocchi (es. 2×4 h).',
+  pump_turnover_lbl:'Tempo per un ricircolo completo',
+  pump_temp_res_lbl:'In base alla temperatura dell\'acqua (temp ÷ 2)',
+  pump_temp_lbl:'Temperatura dell\'acqua (°C)',
+  pump_temp_res_hint:'Acqua più calda = tempo di funzionamento più lungo (protezione dalle alghe). Presa dalla tua ultima misurazione.',
+  pump_min_lbl:'Portata minima della pompa (2× in 8 h)',
+  pump_ok:'✓ La tua pompa lo gestisce facilmente.',
+  pump_small:'⚠ La pompa potrebbe essere troppo piccola – falla funzionare più a lungo.',
+  pump_need_rate:'Inserisci la portata della pompa ↑',
+  pump_per_day:'/giorno',
   },
 nl:{
   nav_pool:'⚙ Zwembadinfo', nav_meas:'📋 Metingen', nav_dose:'💊 Doseren',
@@ -785,6 +903,21 @@ nl:{
   dlg_del:'Deze vermelding verwijderen?',
   err_date:'Voer een datum in.', err_val:'Voer minstens één meetwaarde in.',
   footer:'Geen internet nodig',
+  nav_pump:'🔄 Circulatie',
+  pump_title:'CIRCULATIECALCULATOR',
+  pump_rate_lbl:'Pompdebiet (m³/h)',
+  pump_rate_hint:'Het debiet van je pomp – op het typeplaatje of in de datasheet.',
+  pump_runtime_lbl:'Aanbevolen looptijd (2× per dag)',
+  pump_runtime_hint:'Vuistregel: circuleer het water volledig 2× per dag – idealiter verdeeld over 2–3 blokken (bijv. 2×4 h).',
+  pump_turnover_lbl:'Tijd voor één volledige omwenteling',
+  pump_temp_res_lbl:'Op basis van watertemperatuur (temp ÷ 2)',
+  pump_temp_lbl:'Watertemperatuur (°C)',
+  pump_temp_res_hint:'Warmer water = langere looptijd (bescherming tegen algen). Overgenomen uit je laatste meting.',
+  pump_min_lbl:'Minimaal pompdebiet (2× in 8 h)',
+  pump_ok:'✓ Je pomp doet dit met gemak.',
+  pump_small:'⚠ Pomp is mogelijk te klein – laat hem langer draaien.',
+  pump_need_rate:'Voer pompdebiet in ↑',
+  pump_per_day:'/dag',
   },
 pl:{
   nav_pool:'⚙ Informacje o basenie', nav_meas:'📋 Pomiary', nav_dose:'💊 Dozowanie',
@@ -845,6 +978,21 @@ pl:{
   dlg_del:'Usunąć ten wpis?',
   err_date:'Proszę podać datę.', err_val:'Podaj co najmniej jedną wartość pomiaru.',
   footer:'Internet nie jest potrzebny',
+  nav_pump:'🔄 Cyrkulacja',
+  pump_title:'KALKULATOR CYRKULACJI',
+  pump_rate_lbl:'Wydajność pompy (m³/h)',
+  pump_rate_hint:'Wydajność Twojej pompy – na tabliczce znamionowej lub w karcie katalogowej.',
+  pump_runtime_lbl:'Zalecany czas pracy (2× dziennie)',
+  pump_runtime_hint:'Zasada praktyczna: przepompuj całą wodę 2× dziennie – najlepiej w 2–3 blokach (np. 2×4 h).',
+  pump_turnover_lbl:'Czas jednego pełnego obiegu',
+  pump_temp_res_lbl:'Wg temperatury wody (temp. ÷ 2)',
+  pump_temp_lbl:'Temperatura wody (°C)',
+  pump_temp_res_hint:'Cieplejsza woda = dłuższy czas pracy (ochrona przed glonami). Pobrane z Twojego ostatniego pomiaru.',
+  pump_min_lbl:'Minimalna wydajność pompy (2× w 8 h)',
+  pump_ok:'✓ Twoja pompa poradzi sobie z tym bez trudu.',
+  pump_small:'⚠ Pompa może być za mała – pozwól jej pracować dłużej.',
+  pump_need_rate:'Wprowadź wydajność pompy ↑',
+  pump_per_day:'/dzień',
   },
 pt:{
   nav_pool:'⚙ Info da Piscina', nav_meas:'📋 Medições', nav_dose:'💊 Dosagem',
@@ -905,6 +1053,21 @@ pt:{
   dlg_del:'Eliminar este registo?',
   err_date:'Introduza uma data.', err_val:'Introduza pelo menos um valor de medição.',
   footer:'Não precisa de internet',
+  nav_pump:'🔄 Circulação',
+  pump_title:'CALCULADORA DE CIRCULAÇÃO',
+  pump_rate_lbl:'Caudal da bomba (m³/h)',
+  pump_rate_hint:'O caudal da sua bomba – na chapa de características ou na ficha técnica.',
+  pump_runtime_lbl:'Tempo de funcionamento recomendado (2× por dia)',
+  pump_runtime_hint:'Regra geral: fazer circular toda a água 2× por dia – idealmente repartido em 2–3 blocos (p. ex. 2×4 h).',
+  pump_turnover_lbl:'Tempo para uma renovação completa',
+  pump_temp_res_lbl:'Pela temperatura da água (temp ÷ 2)',
+  pump_temp_lbl:'Temperatura da água (°C)',
+  pump_temp_res_hint:'Água mais quente = mais tempo de funcionamento (proteção contra algas). Obtido da sua última medição.',
+  pump_min_lbl:'Caudal mínimo da bomba (2× em 8 h)',
+  pump_ok:'✓ A sua bomba dá conta disto facilmente.',
+  pump_small:'⚠ A bomba pode ser demasiado pequena – deixe-a funcionar mais tempo.',
+  pump_need_rate:'Introduza o caudal da bomba ↑',
+  pump_per_day:'/dia',
   },
 sv:{
   nav_pool:'⚙ Poolinfo', nav_meas:'📋 Mätningar', nav_dose:'💊 Dosering',
@@ -965,6 +1128,21 @@ sv:{
   dlg_del:'Radera denna post?',
   err_date:'Ange ett datum.', err_val:'Ange minst ett mätvärde.',
   footer:'Inget internet behövs',
+  nav_pump:'🔄 Cirkulation',
+  pump_title:'CIRKULATIONSKALKYLATOR',
+  pump_rate_lbl:'Pumpens flöde (m³/h)',
+  pump_rate_hint:'Din pumps flöde – på typskylten eller databladet.',
+  pump_runtime_lbl:'Rekommenderad drifttid (2× per dag)',
+  pump_runtime_hint:'Tumregel: cirkulera vattnet helt 2× om dagen – helst uppdelat i 2–3 block (t.ex. 2×4 h).',
+  pump_turnover_lbl:'Tid för en full omsättning',
+  pump_temp_res_lbl:'Efter vattentemperatur (temp ÷ 2)',
+  pump_temp_lbl:'Vattentemperatur (°C)',
+  pump_temp_res_hint:'Varmare vatten = längre drifttid (algskydd). Hämtas från din senaste mätning.',
+  pump_min_lbl:'Minsta pumpflöde (2× på 8 h)',
+  pump_ok:'✓ Din pump klarar detta enkelt.',
+  pump_small:'⚠ Pumpen kan vara för liten – låt den gå längre.',
+  pump_need_rate:'Ange pumpens flöde ↑',
+  pump_per_day:'/dag',
   },
 da:{
   nav_pool:'⚙ Pool-info', nav_meas:'📋 Målinger', nav_dose:'💊 Dosering',
@@ -1025,6 +1203,21 @@ da:{
   dlg_del:'Slet denne post?',
   err_date:'Indtast venligst en dato.', err_val:'Indtast mindst én måleværdi.',
   footer:'Ingen internetforbindelse nødvendig',
+  nav_pump:'🔄 Cirkulation',
+  pump_title:'CIRKULATIONSBEREGNER',
+  pump_rate_lbl:'Pumpens flowhastighed (m³/h)',
+  pump_rate_hint:'Din pumpes flowhastighed – på typeskiltet eller databladet.',
+  pump_runtime_lbl:'Anbefalet driftstid (2× om dagen)',
+  pump_runtime_hint:'Tommelfingerregel: cirkulér vandet helt 2× om dagen – helst delt op i 2–3 blokke (f.eks. 2×4 h).',
+  pump_turnover_lbl:'Tid for én fuld omsætning',
+  pump_temp_res_lbl:'Efter vandtemperatur (temp ÷ 2)',
+  pump_temp_lbl:'Vandtemperatur (°C)',
+  pump_temp_res_hint:'Varmere vand = længere driftstid (algebeskyttelse). Taget fra din seneste måling.',
+  pump_min_lbl:'Minimum pumpehastighed (2× på 8 h)',
+  pump_ok:'✓ Din pumpe klarer dette let.',
+  pump_small:'⚠ Pumpen er måske for lille – lad den køre længere.',
+  pump_need_rate:'Indtast pumpens flowhastighed ↑',
+  pump_per_day:'/dag',
   },
 cs:{
   nav_pool:'⚙ Info o bazénu', nav_meas:'📋 Měření', nav_dose:'💊 Dávkování',
@@ -1085,6 +1278,21 @@ cs:{
   dlg_del:'Smazat tento záznam?',
   err_date:'Zadejte prosím datum.', err_val:'Zadejte alespoň jednu naměřenou hodnotu.',
   footer:'Není potřeba internet',
+  nav_pump:'🔄 Cirkulace',
+  pump_title:'KALKULAČKA CIRKULACE',
+  pump_rate_lbl:'Průtok čerpadla (m³/h)',
+  pump_rate_hint:'Průtok vašeho čerpadla – na typovém štítku nebo v datovém listu.',
+  pump_runtime_lbl:'Doporučená doba běhu (2× denně)',
+  pump_runtime_hint:'Orientační pravidlo: vodu zcela zcirkulujte 2× denně – ideálně rozdělené do 2–3 bloků (např. 2×4 h).',
+  pump_turnover_lbl:'Doba jedné úplné výměny',
+  pump_temp_res_lbl:'Podle teploty vody (teplota ÷ 2)',
+  pump_temp_lbl:'Teplota vody (°C)',
+  pump_temp_res_hint:'Teplejší voda = delší doba běhu (ochrana proti řasám). Převzato z vašeho posledního měření.',
+  pump_min_lbl:'Minimální průtok čerpadla (2× za 8 h)',
+  pump_ok:'✓ Vaše čerpadlo to zvládne bez problémů.',
+  pump_small:'⚠ Čerpadlo může být příliš malé – nechte ho běžet déle.',
+  pump_need_rate:'Zadejte průtok čerpadla ↑',
+  pump_per_day:'/den',
   },
 el:{
   nav_pool:'⚙ Στοιχεία πισίνας', nav_meas:'📋 Μετρήσεις', nav_dose:'💊 Δοσολογία',
@@ -1145,6 +1353,21 @@ el:{
   dlg_del:'Διαγραφή αυτής της καταχώρισης;',
   err_date:'Παρακαλώ εισαγάγετε μια ημερομηνία.', err_val:'Εισαγάγετε τουλάχιστον μία τιμή μέτρησης.',
   footer:'Δεν απαιτείται σύνδεση στο διαδίκτυο',
+  nav_pump:'🔄 Ανακυκλοφορία',
+  pump_title:'ΥΠΟΛΟΓΙΣΤΗΣ ΑΝΑΚΥΚΛΟΦΟΡΙΑΣ',
+  pump_rate_lbl:'Παροχή αντλίας (m³/h)',
+  pump_rate_hint:'Η παροχή της αντλίας σας – στην πινακίδα τύπου ή στο φύλλο δεδομένων.',
+  pump_runtime_lbl:'Συνιστώμενος χρόνος λειτουργίας (2× την ημέρα)',
+  pump_runtime_hint:'Πρακτικός κανόνας: ανακυκλώστε πλήρως το νερό 2× την ημέρα – ιδανικά χωρισμένο σε 2–3 μπλοκ (π.χ. 2×4 h).',
+  pump_turnover_lbl:'Χρόνος για μία πλήρη ανακυκλοφορία',
+  pump_temp_res_lbl:'Ανά θερμοκρασία νερού (θερμ. ÷ 2)',
+  pump_temp_lbl:'Θερμοκρασία νερού (°C)',
+  pump_temp_res_hint:'Θερμότερο νερό = μεγαλύτερος χρόνος λειτουργίας (προστασία από φύκια). Λαμβάνεται από την τελευταία σας μέτρηση.',
+  pump_min_lbl:'Ελάχιστη παροχή αντλίας (2× σε 8 h)',
+  pump_ok:'✓ Η αντλία σας το χειρίζεται εύκολα.',
+  pump_small:'⚠ Η αντλία μπορεί να είναι πολύ μικρή – αφήστε την να λειτουργεί περισσότερο.',
+  pump_need_rate:'Εισαγάγετε την παροχή της αντλίας ↑',
+  pump_per_day:'/ημέρα',
   },
 };
 
@@ -1183,7 +1406,7 @@ function setLang(l) {
   const sel = document.getElementById('lang-select');
   if (sel) sel.value = l;
   document.documentElement.lang = l;
-  applyTr(); onShape(); renderTable(); calcDose(); updateFB(); saveData();
+  applyTr(); onShape(); renderTable(); calcDose(); calcPump(); updateFB(); saveData();
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1239,7 +1462,8 @@ function calcVol() {
   document.getElementById('hdr-vol').textContent   = poolVol.toLocaleString('de-DE') + ' L';
   document.getElementById('vol-formula').textContent = s==='rect' ? 'L × B × H × Füllst.' : 'π/4 × L × B × H × Füllst.';
   document.getElementById('dose-vol').textContent  = poolVol.toLocaleString('de-DE') + ' L  /  ' + m3 + ' m³';
-  calcDose(); saveData();
+  const pv=document.getElementById('pump-vol'); if(pv) pv.textContent = poolVol.toLocaleString('de-DE') + ' L  /  ' + m3 + ' m³';
+  calcDose(); calcPump(); saveData();
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1289,6 +1513,7 @@ function showTab(id, btn) {
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
   if(id==='t-dose') calcDose();
+  if(id==='t-pump'){ prefillPumpTemp(); calcPump(); }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1307,6 +1532,8 @@ function addEntry() {
   if(isNaN(ph)&&isNaN(cl)&&isNaN(mv)){ err.textContent=t('err_val'); err.style.display='block'; return; }
   measurements.unshift({date,time,temp,ph,cl,mv,vol:poolVol});
   saveData(); renderTable();
+  // Neueste Wassertemperatur für den Umwälz-Rechner übernehmen.
+  if(!isNaN(temp)&&temp>0){ const pf=document.getElementById('pump-temp'); if(pf){ pf.value=temp; calcPump(); } }
   ['m-temp','m-ph','m-cl','m-mv'].forEach(id=>document.getElementById(id).value='');
 }
 function delEntry(i) {
@@ -1364,6 +1591,54 @@ function calcDose() {
 
   document.getElementById('r-shock').textContent =
     vol>0 ? t('r_shock',{g:Math.round(20*m3),m3:m3.toFixed(3)}) : '–';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CIRCULATION / PUMP CALC
+   Faustregel: Wasser 2× pro Tag komplett umwälzen.
+   Umwälzzeit (1×) = Volumen(m³) / Pumpenleistung(m³/h).
+   Empfohlen/Tag  = Volumen × 2 / Pumpenleistung.
+   Temperatur-Regel: Wassertemperatur / 2 = Stunden/Tag.
+   Mindest-Pumpe (2× in 8 h) = Volumen × 2 / 8 = Volumen / 4.
+═══════════════════════════════════════════════════════════ */
+function fmtHrs(h){
+  if(!(h>0)) return '–';
+  let hh=Math.floor(h), mm=Math.round((h-hh)*60);
+  if(mm===60){ hh++; mm=0; }
+  return mm ? hh+' h '+mm+' min' : hh+' h';
+}
+// Wassertemperatur aus der jüngsten Messung vorbelegen (nur wenn Feld leer).
+function prefillPumpTemp(){
+  const f=document.getElementById('pump-temp');
+  if(f && !f.value){
+    const m=measurements.find(x=>!isNaN(x.temp)&&x.temp>0);
+    if(m) f.value=m.temp;
+  }
+}
+function calcPump(){
+  const rate=parseFloat(document.getElementById('pump-rate').value)||0;
+  const m3=poolVol/1000;
+  const set=(id,v)=>{const e=document.getElementById(id); if(e) e.textContent=v;};
+  const per=t('pump_per_day');
+  const numLoc = TR[lang]?lang:'en';
+
+  // Temperatur-Faustregel (unabhängig von der Pumpe)
+  const temp=parseFloat(document.getElementById('pump-temp').value)||0;
+  set('r-pumptemp', temp>0 ? fmtHrs(temp/2)+' '+per : '–');
+
+  if(rate<=0 || m3<=0){
+    set('r-turnover', rate>0 ? fmtHrs(m3/rate) : t('pump_need_rate'));
+    set('r-runtime','–'); set('r-minpump','–'); set('r-pumpstatus','');
+    return;
+  }
+  const turnover=m3/rate;
+  set('r-turnover', fmtHrs(turnover));
+  set('r-runtime', fmtHrs(turnover*2)+' '+per);
+  const minPump=m3*2/8;
+  set('r-minpump', minPump.toLocaleString(numLoc,{maximumFractionDigits:1})+' m³/h');
+  const st=document.getElementById('r-pumpstatus');
+  if(st){ st.textContent = rate>=minPump ? t('pump_ok') : t('pump_small');
+          st.style.color = rate>=minPump ? 'var(--self-teal-bright)' : 'var(--self-yellow)'; }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1493,7 +1768,7 @@ function toast(msg,err=false){
 /* ═══════════════════════════════════════════════════════════
    DATA HELPERS
 ═══════════════════════════════════════════════════════════ */
-function poolCfg(){return{form:document.getElementById('pool-form').value,l:document.getElementById('pool-l').value,b:document.getElementById('pool-b').value,h:document.getElementById('pool-h').value,fill:document.getElementById('pool-fill').value};}
+function poolCfg(){return{form:document.getElementById('pool-form').value,l:document.getElementById('pool-l').value,b:document.getElementById('pool-b').value,h:document.getElementById('pool-h').value,fill:document.getElementById('pool-fill').value,pump:document.getElementById('pump-rate').value};}
 
 function applyData(d){
   if(d.pool){
@@ -1502,6 +1777,7 @@ function applyData(d){
     document.getElementById('pool-b').value=d.pool.b||160;
     document.getElementById('pool-h').value=d.pool.h||65;
     document.getElementById('pool-fill').value=d.pool.fill||80;
+    document.getElementById('pump-rate').value=d.pool.pump||'';
   }
   // Defensive: coerce every imported measurement to safe primitives. A tampered
   // backup file must never inject HTML — renderTable() writes into innerHTML, so
@@ -1516,7 +1792,7 @@ function applyData(d){
     vol:Number(m.vol)
   }));
   if(d.lang && TR[d.lang]){ lang=d.lang; const sel=document.getElementById('lang-select'); if(sel) sel.value=lang; document.documentElement.lang=lang; }
-  applyTr(); onShape(); calcVol(); renderTable();
+  applyTr(); onShape(); calcVol(); renderTable(); prefillPumpTemp(); calcPump();
 }
 
 function saveData(){
@@ -1551,7 +1827,7 @@ document.addEventListener('DOMContentLoaded', async()=>{
     const nav=(navigator.language||'').slice(0,2).toLowerCase();
     if(TR[nav]){ lang=nav; document.documentElement.lang=nav; }
     const sel=document.getElementById('lang-select'); if(sel) sel.value=lang;
-    applyTr();onShape();calcVol();renderTable();
+    applyTr();onShape();calcVol();renderTable();prefillPumpTemp();calcPump();
   }
   updateFB();
 });
