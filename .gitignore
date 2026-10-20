@@ -2,3 +2,6 @@
 Thumbs.db
 *.json
 !package.json
+
+# Android-Quellcode: nur lokal, NICHT pushen
+/_android-src/
