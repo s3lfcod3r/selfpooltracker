@@ -7,7 +7,7 @@
 
 [![Website](https://img.shields.io/badge/live-pool.selfcoder.de-33A78C?logo=githubpages&logoColor=white)](https://pool.selfcoder.de)
 ![Version](https://img.shields.io/badge/version-1.2.0-33A78C)
-![License](https://img.shields.io/badge/license-MIT-8A9CAA)
+![License](https://img.shields.io/badge/license-All%20rights%20reserved-8A9CAA)
 ![Web](https://img.shields.io/badge/web-single--file%20HTML-43D3AD)
 ![App](https://img.shields.io/badge/android-WebView-9DBDD0)
 ![Deploy](https://img.shields.io/badge/deploy-GitHub%20Pages-6F95AD)
@@ -161,13 +161,13 @@ selfpooltracker/
 │   └── shield.png      # Self shield emblem (in-app header)
 ├── .github/workflows/  # SelfStore catalog sync on release
 ├── CHANGELOG.md
-├── LICENSE             # MIT license
+├── LICENSE             # all rights reserved
 └── README.md
 ```
 
 **Tests:** there are no automated tests yet.
 
-License: **MIT** — see [LICENSE](LICENSE).
+License: **all rights reserved** — see [LICENSE](LICENSE).
 
 <a id="en-roadmap"></a>
 
@@ -324,13 +324,13 @@ selfpooltracker/
 │   └── shield.png      # Self-Schild (Kopfzeile in der App)
 ├── .github/workflows/  # SelfStore-Katalog-Sync bei Release
 ├── CHANGELOG.md
-├── LICENSE             # MIT-Lizenz
+├── LICENSE             # alle Rechte vorbehalten
 └── README.md
 ```
 
 **Tests:** automatische Tests gibt es noch nicht.
 
-Lizenz: **MIT** — siehe [LICENSE](LICENSE).
+Lizenz: **alle Rechte vorbehalten** — siehe [LICENSE](LICENSE).
 
 <a id="de-roadmap"></a>
 
@@ -343,6 +343,26 @@ Lizenz: **MIT** — siehe [LICENSE](LICENSE).
 - [x] Umwälz-Rechner
 
 <p align="right"><a href="#-deutsch">⬆ nach oben</a></p>
+
+---
+
+## ⚖️ Lizenz / License
+
+**🇩🇪 Alle Rechte vorbehalten.** © 2026 s3lfcod3r / SelfCoder
+
+Du darfst die Software **privat und nicht-kommerziell** installieren und benutzen (z. B. im Homelab, über Docker oder Unraid).
+
+**Ohne schriftliche Erlaubnis verboten:** kommerzielle Nutzung · Kopieren · Verändern · Weitergeben · Einbauen in eigene Projekte (auch Closed Source) · Verkaufen.
+
+Details: [LICENSE](LICENSE)
+
+**🇬🇧 All rights reserved.** © 2026 s3lfcod3r / SelfCoder
+
+You may install and use the software **privately and non-commercially** (e.g. in your home lab, via Docker or Unraid).
+
+**Not permitted without written permission:** commercial use · copying · modifying · redistributing · incorporating into other projects (including closed source) · selling.
+
+Details: [LICENSE](LICENSE)
 
 ---
 
