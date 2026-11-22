@@ -27,7 +27,7 @@
 
 SelfPoolTracker is a single-file web app for keeping your pool chemistry in check. Open one HTML file in Chrome or Edge (or just visit **[pool.selfcoder.de](https://pool.selfcoder.de)**), enter your pool dimensions and log your measurements — every value gets a green / yellow / red status and a concrete dosing recommendation based on your pool volume. It is **not** a cloud service: there is no server and no account, and your data never leaves your device.
 
-Part of the **Self** family (SelfMailer, SelfStream, SelfArchiver, SelfDashboard …) — same design system; deployed as a static site on GitHub Pages instead of GHCR → Unraid.
+Part of the **Self** family (SelfMailer, SelfArchiver, SelfDashboard …) — same design system; deployed as a static site on GitHub Pages instead of GHCR → Unraid.
 
 > **TL;DR** — pH · chlorine · redox · temperature · traffic-light status · dosing calculator · circulation calculator · 12 languages · local storage only · Android app.
 
@@ -190,7 +190,7 @@ License: **all rights reserved** — see [LICENSE](LICENSE).
 
 SelfPoolTracker ist eine Webapp in einer einzigen Datei, mit der du deine Poolwerte im Griff behältst. Eine HTML-Datei in Chrome oder Edge öffnen (oder einfach **[pool.selfcoder.de](https://pool.selfcoder.de)** aufrufen), Pool-Maße eintragen und Messwerte loggen — jeder Wert bekommt einen grün / gelb / rot-Status und eine konkrete Dosierempfehlung anhand deines Pool-Volumens. Es ist **kein** Cloud-Dienst: kein Server, kein Konto, und deine Daten verlassen nie dein Gerät.
 
-Teil der **Self**-Familie (SelfMailer, SelfStream, SelfArchiver, SelfDashboard …) — gleiches Design-System; läuft als statische Seite auf GitHub Pages statt GHCR → Unraid.
+Teil der **Self**-Familie (SelfMailer, SelfArchiver, SelfDashboard …) — gleiches Design-System; läuft als statische Seite auf GitHub Pages statt GHCR → Unraid.
 
 > **Kurz** — pH · Chlor · Redox · Temperatur · Ampel-Status · Dosierungsrechner · Umwälz-Rechner · 12 Sprachen · nur lokale Speicherung · Android-App.
 
